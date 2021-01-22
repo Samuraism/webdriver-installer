@@ -54,9 +54,9 @@ publishing {
                     }
                 }
                 scm {
-                    url = 'https://github.com/chrome-driver-installer'
-                    connection = 'scm:git:git://github.com/yusuke/chrome-driver-installer.git'
-                    developerConnection = 'scm:git:git@github.com:yusuke/chrome-driver-installer.git'
+                    url = 'https://github.com/Samuraism/chrome-driver-installer'
+                    connection = 'scm:git:git://github.com/Samuraism/chrome-driver-installer.git'
+                    developerConnection = 'scm:git:git@github.com:Samuraism/chrome-driver-installer.git'
                 }
             }
         }
