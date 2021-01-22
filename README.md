@@ -1,5 +1,5 @@
 # chrome-driver-installer
-Detect installed Google Chrome version and installs chrome driver in the specified location.
+chrome-driver-installer is a tiny utility class which detects the version of the installed Google Chrome and installs chrome driver in the specified location.
 
 ## hashtag
 [&#35;chromeDriverInstaller](https://twitter.com/intent/tweet?text=https://github.com/samuraism/chrome-driver-installer/+%23chromeDriverInstaller)
