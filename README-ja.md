@@ -1,13 +1,12 @@
 # chrome-driver-installer
-Detect installed Google Chrome version and installs chrome driver in the specified location.
-
-## hashtag
+インストールされているGoogle Chromeのバージョンを検出して、chrome driverを指定した場所にインストールします。
+## ハッシュタグ
 [&#35;chromeDriverInstaller](https://twitter.com/intent/tweet?text=https://github.com/samuraism/chrome-driver-installer/+%23chromeDriverInstaller)
-## System Requirements
+## システム要件
 Java 8+
 
-## Adding chrome-driver-installer to your project
-This library is available at the Maven Central Repository
+## chrome-driver-installer をプロジェクトに追加する
+このライブラリはMaven Central Repositoryにあります。
 
 ### Maven
 ```xml
@@ -25,8 +24,8 @@ dependencies {
     compile 'com.samuraism:chrome-driver-installer:1.0'
 }
 ```
-## How to use
-Call ensureInstalled method to ensure the driver is installed.
+## 使い方
+ensureInstalled メソッドを呼び出せばドライバがインストールされている状態になります。
 ```java
 package yourpackage;
 import com.samuraism.chromedriverinstaller.ChromeDriverInstaller;

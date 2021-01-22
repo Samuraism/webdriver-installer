@@ -115,10 +115,6 @@ public final class ChromeDriverInstaller {
             return Optional.empty();
         }
         final String chromeVersion = installedVersion.get();
-        if (listAvailableChromeDriverVersions().stream().noneMatch(e -> e.equals(chromeVersion))) {
-            log("chrome driver for version:"+ chromeVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
-            return Optional.empty();
-        }
         Path installRootPath = Paths.get(installRoot + "/" + chromeVersion);
 
         Path filePath = installRootPath.resolve(fileName);
@@ -129,6 +125,10 @@ public final class ChromeDriverInstaller {
             if (Files.exists(bin)) {
                 log("ChromeDriver already installed.");
             } else {
+                if (listAvailableChromeDriverVersions().stream().noneMatch(e -> e.equals(chromeVersion))) {
+                    log("chrome driver for version:"+ chromeVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
+                    return Optional.empty();
+                }
                 Files.createDirectories(installRootPath);
                 downloadURL = "https://chromedriver.storage.googleapis.com/" + chromeVersion + "/" + fileName;
                 //noinspection ResultOfMethodCallIgnored
