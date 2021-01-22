@@ -1,5 +1,5 @@
-# chrome-driver-installer
-インストールされているGoogle Chromeのバージョンを検出して、chrome driverを指定した場所にインストールします。
+# [&#35;chromeDriverInstaller](https://twitter.com/search?q=%23chromeDriverInstaller&src=typed_query&f=live)
+chrome-driver-installerはインストールされているGoogle Chromeのバージョンを検出して、chrome driverを指定した場所にインストールしてくれる小さなユーティリティクラスです。
 ## ハッシュタグ
 [&#35;chromeDriverInstaller](https://twitter.com/intent/tweet?text=https://github.com/samuraism/chrome-driver-installer/+%23chromeDriverInstaller)
 ## システム要件
