@@ -202,13 +202,18 @@ public final class ChromeDriverInstaller {
     private static String execute(File directory, String[] commands) throws IOException, InterruptedException {
         File tempFile = File.createTempFile("chromeDriverInstaller", "out");
         tempFile.deleteOnExit();
-        ProcessBuilder pb = new ProcessBuilder(commands)
-                .directory(directory)
-                .redirectErrorStream(true)
-                .redirectOutput(ProcessBuilder.Redirect.to(tempFile));
-        Process process = pb.start();
-        process.waitFor();
-        return new String(Files.readAllBytes(tempFile.toPath()));
+        try {
+            ProcessBuilder pb = new ProcessBuilder(commands)
+                    .directory(directory)
+                    .redirectErrorStream(true)
+                    .redirectOutput(ProcessBuilder.Redirect.to(tempFile));
+            Process process = pb.start();
+            process.waitFor();
+            return new String(Files.readAllBytes(tempFile.toPath()));
+        }finally {
+            //noinspection ResultOfMethodCallIgnored
+            tempFile.delete();
+        }
     }
 
     private static void log(String message) {
