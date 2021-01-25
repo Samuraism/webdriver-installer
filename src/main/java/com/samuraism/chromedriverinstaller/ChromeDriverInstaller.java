@@ -15,6 +15,7 @@
  */
 package com.samuraism.chromedriverinstaller;
 
+import com.sun.jna.platform.win32.Advapi32Util;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -39,6 +40,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 @SuppressWarnings("WeakerAccess")
 public final class ChromeDriverInstaller {
@@ -183,6 +186,7 @@ public final class ChromeDriverInstaller {
                     chromePath = "/usr/bin/google-chrome";
                     break;
                 case WINDOWS:
+                    return getInstalledChromeVersionForWindows();
                 case UNKNOWN:
                     throw new UnsupportedOperationException("Not yet supported");
             }
@@ -216,8 +220,12 @@ public final class ChromeDriverInstaller {
         }
     }
 
+    private static Optional<String> getInstalledChromeVersionForWindows() {
+        return Optional.of(Advapi32Util.registryGetStringValue(HKEY_CURRENT_USER, "Software\\Google\\Chrome\\BLBeacon", "version"));
+    }
+
     private static void log(String message) {
-        System.out.println("[ChromeDrriverInstaller]" + message);
+        System.out.println("[ChromeDriverInstaller]" + message);
     }
 
     private static void log(String message, Exception e) {
