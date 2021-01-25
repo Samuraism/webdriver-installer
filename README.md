@@ -9,6 +9,7 @@ Java 8+
 ## Adding chrome-driver-installer to your project
 This library is available at the Maven Central Repository
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.samuraism/chrome-driver-installer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.samuraism/chrome-driver-installer)
 ### Maven
 ```xml
 <dependencies>
