@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -45,16 +46,14 @@ import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 @SuppressWarnings("WeakerAccess")
 public final class ChromeDriverInstaller {
-
+    private final static Logger logger = Logger.getLogger("com.samuraism.chromedriverinstaller.ChromeDriverInstaller");
     public static void main(String[] args) {
         // install Chrome Driver in /tmp/chromedriver
         // This ensures chrome driver to be installed at /tmp/chromedriver
         // "webdriver.chrome.driver" system property will be also set.
         Optional<String> path = ChromeDriverInstaller.ensureInstalled("/tmp/chromedriver");
-        if(path.isPresent()){
-            System.out.println("Chrome Driver is installed at:" + path.get());
-        }else {
-            System.out.println("Failed to install Chrome Driver");
+        if(!path.isPresent()){
+            logger.warning("Failed to install Chrome Driver");
         }
     }
 
@@ -106,6 +105,7 @@ public final class ChromeDriverInstaller {
         fileName = dirName + ".zip";
     }
 
+    private static boolean initialized = false;
     /**
      * ensure ChromeDriver is installed on the specified directory
      *
@@ -121,51 +121,56 @@ public final class ChromeDriverInstaller {
         Path installRootPath = Paths.get(installRoot + "/" + chromeVersion);
 
         Path filePath = installRootPath.resolve(fileName);
-        Path bin = installRootPath.resolve(binName);
+        final Path bin = installRootPath.resolve(binName);
+        String chromedriver = bin.toAbsolutePath().toFile().getAbsolutePath();
         // download ChromeDriver
         String downloadURL = "";
-        try {
-            if (Files.exists(bin)) {
-                log("ChromeDriver already installed.");
-            } else {
-                if (listAvailableChromeDriverVersions().stream().noneMatch(e -> e.equals(chromeVersion))) {
-                    log("chrome driver for version:"+ chromeVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
-                    return Optional.empty();
-                }
-                Files.createDirectories(installRootPath);
-                downloadURL = "https://chromedriver.storage.googleapis.com/" + chromeVersion + "/" + fileName;
-                //noinspection ResultOfMethodCallIgnored
-                filePath.toFile().delete();
-                URL url = new URL(downloadURL);
-                HttpURLConnection con = null;
-                try {
-                    con = (HttpURLConnection) url.openConnection();
-                    con.setReadTimeout(5000);
-                    con.setConnectTimeout(5000);
-                    int code = con.getResponseCode();
-                    if (code == 200) {
-                        Files.copy(con.getInputStream(), filePath);
-                    } else {
-                        throw new IOException("URL[" + url + "] returns code [" + code + "].");
-                    }
-                } finally {
-                    if (con != null) {
-                        con.disconnect();
-                    }
-                }
-                if (filePath.getFileName().toString().endsWith("tar.bz2")) {
-                    unTar(filePath.toFile().getAbsolutePath(), installRootPath);
+        if (!initialized) {
+            try {
+                if (Files.exists(bin)) {
+                    logger.info("ChromeDriver is installed at: " + bin.toAbsolutePath().toString());
+                    initialized = true;
                 } else {
-                    unZip(installRootPath, filePath);
+                    if (listAvailableChromeDriverVersions().stream().noneMatch(e -> e.equals(chromeVersion))) {
+                        logger.warning("chrome driver for version:"+ chromeVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
+                        return Optional.empty();
+                    }
+                    Files.createDirectories(installRootPath);
+                    downloadURL = "https://chromedriver.storage.googleapis.com/" + chromeVersion + "/" + fileName;
+                    //noinspection ResultOfMethodCallIgnored
+                    filePath.toFile().delete();
+                    URL url = new URL(downloadURL);
+                    HttpURLConnection con = null;
+                    try {
+                        con = (HttpURLConnection) url.openConnection();
+                        con.setReadTimeout(5000);
+                        con.setConnectTimeout(5000);
+                        int code = con.getResponseCode();
+                        if (code == 200) {
+                            Files.copy(con.getInputStream(), filePath);
+                        } else {
+                            throw new IOException("URL[" + url + "] returns code [" + code + "].");
+                        }
+                    } finally {
+                        if (con != null) {
+                            con.disconnect();
+                        }
+                    }
+                    if (filePath.getFileName().toString().endsWith("tar.bz2")) {
+                        unTar(filePath.toFile().getAbsolutePath(), installRootPath);
+                    } else {
+                        unZip(installRootPath, filePath);
+                    }
+                    //noinspection ResultOfMethodCallIgnored
+                    bin.toFile().setExecutable(true);
                 }
-                //noinspection ResultOfMethodCallIgnored
-                bin.toFile().setExecutable(true);
+                System.setProperty("webdriver.chrome.driver", chromedriver);
+                initialized = true;
+            } catch (IOException ioe) {
+                logger.warning("Failed to download: " + downloadURL);
+                ioe.printStackTrace();
             }
-        } catch (IOException ioe) {
-            log("Failed to download: " + downloadURL, ioe);
         }
-        String chromedriver = bin.toAbsolutePath().toFile().getAbsolutePath();
-        System.setProperty("webdriver.chrome.driver", chromedriver);
         return Optional.of(chromedriver);
     }
 
@@ -191,14 +196,15 @@ public final class ChromeDriverInstaller {
                     throw new UnsupportedOperationException("Not yet supported");
             }
             if (!new File(chromePath).exists()) {
-                log("Chrome not found at " + chromePath);
+                logger.warning("Chrome not found at " + chromePath);
                 return Optional.empty();
             }
             final String result = execute(new File("/"), new String[]{chromePath, "-version"});
             final String versionString = result.substring("Google Chrome ".length()).trim();
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
-            log("Failed to locate Google Chrome", e);
+            logger.warning("Failed to locate Google Chrome");
+            e.printStackTrace();
             return Optional.empty();
         }
     }
@@ -222,15 +228,6 @@ public final class ChromeDriverInstaller {
 
     private static Optional<String> getInstalledChromeVersionForWindows() {
         return Optional.of(Advapi32Util.registryGetStringValue(HKEY_CURRENT_USER, "Software\\Google\\Chrome\\BLBeacon", "version"));
-    }
-
-    private static void log(String message) {
-        System.out.println("[ChromeDriverInstaller]" + message);
-    }
-
-    private static void log(String message, Exception e) {
-        log(message);
-        e.printStackTrace();
     }
 
     static List<String> listAvailableChromeDriverVersions() {
