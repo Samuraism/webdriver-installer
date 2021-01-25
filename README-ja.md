@@ -15,14 +15,14 @@ Java 8+
     <dependency>
         <groupId>com.samuraism</groupId>
         <artifactId>chrome-driver-installer</artifactId>
-        <version>1.2</version>
+        <version>1.3</version>
     </dependency>
 </dependencies>
 ```
 ### Gradle
 ```text
 dependencies {
-    compile 'com.samuraism:chrome-driver-installer:1.2'
+    compile 'com.samuraism:chrome-driver-installer:1.3'
 }
 ```
 ## 使い方
