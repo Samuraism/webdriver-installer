@@ -15,7 +15,6 @@
  */
 package com.samuraism.chromedriverinstaller;
 
-import com.sun.jna.platform.win32.Advapi32Util;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -34,15 +33,10 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 @SuppressWarnings("WeakerAccess")
 public final class ChromeDriverInstaller {
@@ -118,7 +112,7 @@ public final class ChromeDriverInstaller {
             return Optional.empty();
         }
         final String chromeVersion = installedVersion.get();
-        Path installRootPath = Paths.get(installRoot + "/" + chromeVersion);
+        Path installRootPath = Paths.get(installRoot, chromeVersion);
 
         Path filePath = installRootPath.resolve(fileName);
         final Path bin = installRootPath.resolve(binName);
@@ -219,15 +213,28 @@ public final class ChromeDriverInstaller {
                     .redirectOutput(ProcessBuilder.Redirect.to(tempFile));
             Process process = pb.start();
             process.waitFor();
-            return new String(Files.readAllBytes(tempFile.toPath()));
+
+            String output = new String(Files.readAllBytes(tempFile.toPath()));
+            if (process.exitValue() != 0) {
+                throw new IOException("Execution failed. commands: " + Arrays.toString(commands) + ", output:" + output);
+            }
+
+            return output;
         }finally {
             //noinspection ResultOfMethodCallIgnored
             tempFile.delete();
         }
     }
 
-    private static Optional<String> getInstalledChromeVersionForWindows() {
-        return Optional.of(Advapi32Util.registryGetStringValue(HKEY_CURRENT_USER, "Software\\Google\\Chrome\\BLBeacon", "version"));
+    private static Optional<String> getInstalledChromeVersionForWindows() throws IOException, InterruptedException {
+        final File currentDir = new File(".");
+        final String chromePath = execute(currentDir, new String[]{"powershell", "-command", "(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe\\\").'(default)'"});
+
+        // See: How to get chrome version using command prompt in windows
+        // https://stackoverflow.com/a/57618035/1932017
+        final String versionString = execute(currentDir, new String[]{"powershell", "-command", "(Get-Item -ErrorAction Stop \\\"" + chromePath.trim() + "\\\").VersionInfo.ProductVersion"});
+
+        return Optional.of(versionString.trim());
     }
 
     static List<String> listAvailableChromeDriverVersions() {
