@@ -15,14 +15,14 @@ This library is available at the Maven Central Repository
     <dependency>
         <groupId>com.samuraism</groupId>
         <artifactId>chrome-driver-installer</artifactId>
-        <version>1.0</version>
+        <version>1.2</version>
     </dependency>
 </dependencies>
 ```
 ### Gradle
 ```text
 dependencies {
-    compile 'com.samuraism:chrome-driver-installer:1.0'
+    compile 'com.samuraism:chrome-driver-installer:1.2'
 }
 ```
 ## How to use
