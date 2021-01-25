@@ -225,7 +225,7 @@ public final class ChromeDriverInstaller {
     }
 
     private static void log(String message) {
-        System.out.println("[ChromeDrriverInstaller]" + message);
+        System.out.println("[ChromeDriverInstaller]" + message);
     }
 
     private static void log(String message, Exception e) {
