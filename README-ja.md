@@ -3,7 +3,9 @@ chrome-driver-installerはインストールされているGoogle Chromeのバ�
 ## ハッシュタグ
 [&#35;chromeDriverInstaller](https://twitter.com/intent/tweet?text=https://github.com/samuraism/chrome-driver-installer/+%23chromeDriverInstaller)
 ## システム要件
-Java 8+
+Java: Java 8+
+
+OS: Windows, Linux, macOS
 
 ## chrome-driver-installer をプロジェクトに追加する
 このライブラリはMaven Central Repositoryにあります。

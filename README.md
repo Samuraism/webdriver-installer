@@ -4,7 +4,9 @@ chrome-driver-installer is a tiny utility class which detects the version of the
 ## hashtag
 [&#35;chromeDriverInstaller](https://twitter.com/intent/tweet?text=https://github.com/samuraism/chrome-driver-installer/+%23chromeDriverInstaller)
 ## System Requirements
-Java 8+
+Java: Java 8+
+
+OS: Windows, Linux, macOS
 
 ## Adding chrome-driver-installer to your project
 This library is available at the Maven Central Repository
