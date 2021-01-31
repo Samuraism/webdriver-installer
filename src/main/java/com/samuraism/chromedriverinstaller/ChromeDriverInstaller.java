@@ -15,12 +15,6 @@
  */
 package com.samuraism.chromedriverinstaller;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -35,8 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 @SuppressWarnings("WeakerAccess")
 public final class ChromeDriverInstaller {
@@ -55,30 +47,9 @@ public final class ChromeDriverInstaller {
     static String dirName = "chromedriver_";
     static String binName = "chromedriver";
 
-    private static final OS os;
-
-    enum OS {
-        MAC,
-        LINUX64,
-        LINUX32,
-        WINDOWS,
-        UNKNOWN
-    }
 
     static {
-        String osName = System.getProperty("os.name").toLowerCase();
-        if (osName.contains("nux")) {
-            os = "32".equals(System.getProperty("sun.arch.data.model")) ? OS.LINUX32 : OS.LINUX64;
-        } else {
-            if (osName.startsWith("windows")) {
-                os = OS.WINDOWS;
-            } else if (osName.contains("mac") || osName.contains("darwin")) {
-                os = OS.MAC;
-            } else {
-                os = OS.UNKNOWN;
-            }
-        }
-        switch (os) {
+        switch (Util.DETECTED_OS) {
             case LINUX32:
                 dirName += "linux32";
                 break;
@@ -92,9 +63,6 @@ public final class ChromeDriverInstaller {
                 dirName += "win32";
                 binName += ".exe";
                 break;
-            case UNKNOWN:
-                throw new IllegalStateException("Unexpected os:" + os);
-
         }
         fileName = dirName + ".zip";
     }
@@ -151,9 +119,9 @@ public final class ChromeDriverInstaller {
                         }
                     }
                     if (filePath.getFileName().toString().endsWith("tar.bz2")) {
-                        unTar(filePath.toFile().getAbsolutePath(), installRootPath);
+                        Util.unTar(filePath.toFile().getAbsolutePath(), installRootPath);
                     } else {
-                        unZip(installRootPath, filePath);
+                        Util.unZip(installRootPath, filePath);
                     }
                     //noinspection ResultOfMethodCallIgnored
                     bin.toFile().setExecutable(true);
@@ -176,7 +144,7 @@ public final class ChromeDriverInstaller {
     public static Optional<String> getInstalledChromeVersion() {
         try {
             String chromePath = "";
-            switch (os) {
+            switch (Util.DETECTED_OS) {
                 case MAC:
                     chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
                     break;
@@ -193,7 +161,7 @@ public final class ChromeDriverInstaller {
                 logger.warning("Chrome not found at " + chromePath);
                 return Optional.empty();
             }
-            final String result = execute(new File("/"), new String[]{chromePath, "-version"});
+            final String result = Util.execute(new File("/"), new String[]{chromePath, "-version"});
             final String versionString = result.substring("Google Chrome ".length()).trim();
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
@@ -203,36 +171,13 @@ public final class ChromeDriverInstaller {
         }
     }
 
-    private static String execute(File directory, String[] commands) throws IOException, InterruptedException {
-        File tempFile = File.createTempFile("chromeDriverInstaller", "out");
-        tempFile.deleteOnExit();
-        try {
-            ProcessBuilder pb = new ProcessBuilder(commands)
-                    .directory(directory)
-                    .redirectErrorStream(true)
-                    .redirectOutput(ProcessBuilder.Redirect.to(tempFile));
-            Process process = pb.start();
-            process.waitFor();
-
-            String output = new String(Files.readAllBytes(tempFile.toPath()));
-            if (process.exitValue() != 0) {
-                throw new IOException("Execution failed. commands: " + Arrays.toString(commands) + ", output:" + output);
-            }
-
-            return output;
-        }finally {
-            //noinspection ResultOfMethodCallIgnored
-            tempFile.delete();
-        }
-    }
-
     private static Optional<String> getInstalledChromeVersionForWindows() throws IOException, InterruptedException {
         final File currentDir = new File(".");
-        final String chromePath = execute(currentDir, new String[]{"powershell", "-command", "(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe\\\").'(default)'"});
+        final String chromePath = Util.execute(currentDir, new String[]{"powershell", "-command", "(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe\\\").'(default)'"});
 
         // See: How to get chrome version using command prompt in windows
         // https://stackoverflow.com/a/57618035/1932017
-        final String versionString = execute(currentDir, new String[]{"powershell", "-command", "(Get-Item -ErrorAction Stop \\\"" + chromePath.trim() + "\\\").VersionInfo.ProductVersion"});
+        final String versionString = Util.execute(currentDir, new String[]{"powershell", "-command", "(Get-Item -ErrorAction Stop \\\"" + chromePath.trim() + "\\\").VersionInfo.ProductVersion"});
 
         return Optional.of(versionString.trim());
     }
@@ -259,52 +204,5 @@ public final class ChromeDriverInstaller {
             throw new IllegalStateException(e);
         }
 
-    }
-
-
-
-    private static void unZip(Path root, Path archiveFile) throws IOException {
-        ZipFile zip = new ZipFile(archiveFile.toFile());
-        Enumeration<? extends ZipEntry> entries = zip.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            if (entry.isDirectory()) {
-                Files.createDirectories(root.resolve(entry.getName()));
-            } else {
-                try (InputStream is = new BufferedInputStream(zip.getInputStream(entry))) {
-                    Files.copy(is, root.resolve(entry.getName()));
-                }
-            }
-
-        }
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    private static void unTar(String s, Path root) throws IOException {
-        File tarFile = File.createTempFile("driver", "tar");
-        try (BZip2CompressorInputStream in = new BZip2CompressorInputStream(new FileInputStream(s));
-             FileOutputStream out = new FileOutputStream(tarFile)) {
-            IOUtils.copy(in, out);
-        }
-
-        File outputDir = root.toFile();
-        outputDir.mkdirs();
-        try (ArchiveInputStream is = new ArchiveStreamFactory()
-                .createArchiveInputStream("tar", new FileInputStream(tarFile))) {
-            ArchiveEntry entry;
-            while ((entry = is.getNextEntry()) != null) {
-                File out = new File(outputDir, entry.getName());
-                if (entry.isDirectory()) {
-                    out.mkdirs();
-                } else {
-                    try (OutputStream fos = new FileOutputStream(out)) {
-                        IOUtils.copy(is, fos);
-                    }
-                }
-            }
-        } catch (ArchiveException e) {
-            throw new IOException(e);
-        }
-        tarFile.delete();
     }
 }
