@@ -163,7 +163,7 @@ public final class GeckodriverInstaller extends WebDriverInstaller {
                 return Optional.empty();
             }
             final String result = getAppVersion(firefoxPath);
-            final String versionString = result.substring(result.lastIndexOf(" ")+1);
+            final String versionString = result.substring(result.lastIndexOf(" ") + 1);
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
             logger.warning("Failed to locate Firefox");

@@ -83,8 +83,16 @@ public final class ChromeDriverInstaller extends WebDriverInstaller {
         }
         // 88.0.4324.96
         final String chromeVersion = installedVersion.get();
+        final Optional<String> suitableDriverVersion = getSuitableDriverVersion(listAvailableChromeDriverVersions(), chromeVersion);
+        String chromeDriverVersion;
+        if (suitableDriverVersion.isPresent()) {
+            chromeDriverVersion = suitableDriverVersion.get();
+        } else {
+            return Optional.empty();
+        }
+
         // /root/88.0.4324.96
-        Path installRootPath = Paths.get(installRoot, chromeVersion);
+        Path installRootPath = Paths.get(installRoot, chromeDriverVersion);
         // /root/88.0.4324.96/chromedriver_mac64.zip
         Path archivePath = installRootPath.resolve(fileName);
         // /root/88.0.4324.96/chromedriver
@@ -92,17 +100,13 @@ public final class ChromeDriverInstaller extends WebDriverInstaller {
         // /root/88.0.4324.96/chromedriver
         String chromedriver = bin.toAbsolutePath().toFile().getAbsolutePath();
         // download ChromeDriver
-        String downloadURL = "https://chromedriver.storage.googleapis.com/" + chromeVersion + "/" + fileName;
+        String downloadURL = "https://chromedriver.storage.googleapis.com/" + chromeDriverVersion + "/" + fileName;
         if (!initialized) {
             try {
                 if (Files.exists(bin)) {
                     logger.info("ChromeDriver is already installed at: " + bin.toAbsolutePath().toString());
                     initialized = true;
                 } else {
-                    if (listAvailableChromeDriverVersions().stream().noneMatch(e -> e.equals(chromeVersion))) {
-                        logger.warning("chrome driver for version:" + chromeVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
-                        return Optional.empty();
-                    }
                     download(downloadURL, archivePath, installRootPath, bin);
                 }
                 System.setProperty("webdriver.chrome.driver", chromedriver);
@@ -152,6 +156,44 @@ public final class ChromeDriverInstaller extends WebDriverInstaller {
         }
     }
 
+    Optional<String> getSuitableDriverVersion(List<String> availableVersions, String installedVersion) {
+        if (availableVersions.contains(installedVersion)) {
+            return Optional.of(installedVersion);
+        }
+        logger.info(String.format("ChromeDriver version %s is not available.", installedVersion));
+        String fallbackVersion = null;
+        while (fallbackVersion == null && installedVersion.contains(".")) {
+            // When Chrome version is 88.0.4324.104 and chrome driver version 88.0.4324.104 is not available,
+            // look up the latest 88.0.4324.**, 88.0.** …
+            installedVersion = installedVersion.substring(0, installedVersion.lastIndexOf("."));
+            for (int i = availableVersions.size() - 1; 0 <= i; i--) {
+                if (availableVersions.get(i).contains(installedVersion)) {
+                    fallbackVersion = availableVersions.get(i);
+                    break;
+                }
+            }
+        }
+        if (fallbackVersion == null) {
+            // find the latest, but older major version
+            int installedMajorVersion = Integer.parseInt(installedVersion);
+            for (int i = installedMajorVersion - 1; 0 < i && fallbackVersion == null; i--) {
+                String checkVersion = String.valueOf(i);
+                for (int j = availableVersions.size() - 1; 0 <= j; j--) {
+                    String majorVersion = availableVersions.get(j).substring(0, availableVersions.get(j).indexOf("."));
+                    if (majorVersion.contains(checkVersion)) {
+                        fallbackVersion = availableVersions.get(j);
+                        break;
+                    }
+                }
+            }
+        }
+        if (fallbackVersion == null) {
+            logger.warning("chrome driver for version:" + installedVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
+            return Optional.empty();
+        }
+        logger.info(String.format("Fallback to Chrome Driver version %s.", fallbackVersion));
+        return Optional.of(fallbackVersion);
+    }
 
     List<String> listAvailableChromeDriverVersions() {
         final URLConnection con;

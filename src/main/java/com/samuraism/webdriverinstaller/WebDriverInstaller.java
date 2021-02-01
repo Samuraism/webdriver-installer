@@ -45,7 +45,8 @@ import java.util.zip.ZipFile;
         WINDOWS64,
         UNKNOWN
     }
-    static boolean isWin(){
+
+    static boolean isWin() {
         return DETECTED_OS == OS.WINDOWS32 || DETECTED_OS == OS.WINDOWS64;
     }
 
@@ -114,7 +115,7 @@ import java.util.zip.ZipFile;
         bin.toFile().setExecutable(true);
     }
 
-    private static void unZip(Path toUnzip,  Path root) throws IOException {
+    private static void unZip(Path toUnzip, Path root) throws IOException {
         ZipFile zip = new ZipFile(toUnzip.toFile());
         Enumeration<? extends ZipEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
@@ -129,10 +130,11 @@ import java.util.zip.ZipFile;
 
         }
     }
-    static void decompress(Path toDecompress, Path root) throws IOException{
+
+    static void decompress(Path toDecompress, Path root) throws IOException {
         if (toDecompress.toString().matches(".*(tar.bz2|tar.gz)$")) {
             unTar(toDecompress, root);
-        }else{
+        } else {
             unZip(toDecompress, root);
         }
     }
@@ -167,15 +169,17 @@ import java.util.zip.ZipFile;
         }
         tarFile.delete();
     }
-    /*package*/ static String getAppPath(String name) throws IOException, InterruptedException {
+
+    /*package*/
+    static String getAppPath(String name) throws IOException, InterruptedException {
         return execute(new File("."), new String[]{"powershell", "-command",
-                String.format("(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s\\\").'(default)'",name)});
+                String.format("(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s\\\").'(default)'", name)});
     }
 
     static String getAppVersion(String appPath) throws IOException, InterruptedException {
         return isWin() ?
                 execute(new File("."), new String[]{"powershell", "-command",
-                                "(Get-Item -ErrorAction Stop \\\"" + appPath + "\\\").VersionInfo.ProductVersion"})
+                        "(Get-Item -ErrorAction Stop \\\"" + appPath + "\\\").VersionInfo.ProductVersion"})
                 : execute(new File("/"), new String[]{appPath, "-version"});
     }
 }
