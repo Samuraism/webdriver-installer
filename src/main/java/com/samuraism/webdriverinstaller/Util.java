@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package com.samuraism.chromedriverinstaller;
+package com.samuraism.webdriverinstaller;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -36,19 +37,21 @@ import java.util.zip.ZipFile;
 
     enum OS {
         MAC,
-        LINUX64,
         LINUX32,
-        WINDOWS,
+        LINUX64,
+        WINDOWS32,
+        WINDOWS64,
         UNKNOWN
     }
 
     static {
+        final String arch = "" + System.getProperty("sun.arch.data.model") + System.getProperty("os.arch");
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("nux")) {
-            DETECTED_OS = "32".equals(System.getProperty("sun.arch.data.model")) ? OS.LINUX32 : OS.LINUX64;
+            DETECTED_OS = arch.contains("64") ? OS.LINUX64 : OS.LINUX32;
         } else {
             if (osName.startsWith("windows")) {
-                DETECTED_OS = OS.WINDOWS;
+                DETECTED_OS = arch.contains("64") ? OS.WINDOWS64 : OS.WINDOWS32;
             } else if (osName.contains("mac") || osName.contains("darwin")) {
                 DETECTED_OS = OS.MAC;
             } else {
@@ -74,14 +77,14 @@ import java.util.zip.ZipFile;
             }
 
             return output;
-        }finally {
+        } finally {
             //noinspection ResultOfMethodCallIgnored
             tempFile.delete();
         }
     }
 
-    static void unZip(Path root, Path archiveFile) throws IOException {
-        ZipFile zip = new ZipFile(archiveFile.toFile());
+    private static void unZip(Path toUnzip,  Path root) throws IOException {
+        ZipFile zip = new ZipFile(toUnzip.toFile());
         Enumeration<? extends ZipEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
@@ -95,11 +98,20 @@ import java.util.zip.ZipFile;
 
         }
     }
+    static void decompress(Path toDecompress, Path root) throws IOException{
+        if (toDecompress.toString().matches(".*(tar.bz2|tar.gz)$")) {
+            unTar(toDecompress, root);
+        }else{
+            unZip(toDecompress, root);
+        }
+    }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    static void unTar(String s, Path root) throws IOException {
+    private static void unTar(Path toDecompress, Path root) throws IOException {
         File tarFile = File.createTempFile("driver", "tar");
-        try (BZip2CompressorInputStream in = new BZip2CompressorInputStream(new FileInputStream(s));
+        try (InputStream in = toDecompress.toString().endsWith(".gz") ?
+                new GZIPInputStream(new FileInputStream(toDecompress.toFile()))
+                : new BZip2CompressorInputStream(new FileInputStream(toDecompress.toFile()));
              FileOutputStream out = new FileOutputStream(tarFile)) {
             IOUtils.copy(in, out);
         }

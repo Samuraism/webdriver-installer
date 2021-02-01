@@ -29,18 +29,21 @@ dependencies {
 ```
 ## 使い方
 ensureInstalled メソッドを呼び出せばドライバがインストールされている状態になります。
+
 ```java
 package yourpackage;
-import com.samuraism.chromedriverinstaller.ChromeDriverInstaller;
+
+import com.samuraism.webdriverinstaller.ChromeDriverInstaller;
+
 public class Example {
     public static void main(String[] args) {
         // install Chrome Driver in /tmp/chromedriver
         // This ensures chrome driver to be installed at /tmp/chromedriver
         // "webdriver.chrome.driver" system property will be also set.
         Optional<String> path = ChromeDriverInstaller.ensureInstalled("/tmp/chromedriver");
-        if(path.isPresent()){
+        if (path.isPresent()) {
             System.out.println("Chrome Driver is installed at:" + path.get());
-        }else {
+        } else {
             System.out.println("Failed to install Chrome Driver");
         }
     }

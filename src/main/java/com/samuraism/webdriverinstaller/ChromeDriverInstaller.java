@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package com.samuraism.chromedriverinstaller;
+package com.samuraism.webdriverinstaller;
 
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -59,7 +59,8 @@ public final class ChromeDriverInstaller {
             case MAC:
                 dirName += "mac64";
                 break;
-            case WINDOWS:
+            case WINDOWS32:
+            case WINDOWS64:
                 dirName += "win32";
                 binName += ".exe";
                 break;
@@ -79,11 +80,15 @@ public final class ChromeDriverInstaller {
         if (!installedVersion.isPresent()) {
             return Optional.empty();
         }
+        // 88.0.4324.96
         final String chromeVersion = installedVersion.get();
+        // /root/88.0.4324.96
         Path installRootPath = Paths.get(installRoot, chromeVersion);
-
-        Path filePath = installRootPath.resolve(fileName);
+        // /root/88.0.4324.96/chromedriver_mac64.zip
+        Path archivePath = installRootPath.resolve(fileName);
+        // /root/88.0.4324.96/chromedriver
         final Path bin = installRootPath.resolve(binName);
+        // /root/88.0.4324.96/chromedriver
         String chromedriver = bin.toAbsolutePath().toFile().getAbsolutePath();
         // download ChromeDriver
         String downloadURL = "";
@@ -100,7 +105,7 @@ public final class ChromeDriverInstaller {
                     Files.createDirectories(installRootPath);
                     downloadURL = "https://chromedriver.storage.googleapis.com/" + chromeVersion + "/" + fileName;
                     //noinspection ResultOfMethodCallIgnored
-                    filePath.toFile().delete();
+                    archivePath.toFile().delete();
                     URL url = new URL(downloadURL);
                     HttpURLConnection con = null;
                     try {
@@ -109,7 +114,7 @@ public final class ChromeDriverInstaller {
                         con.setConnectTimeout(5000);
                         int code = con.getResponseCode();
                         if (code == 200) {
-                            Files.copy(con.getInputStream(), filePath);
+                            Files.copy(con.getInputStream(), archivePath);
                         } else {
                             throw new IOException("URL[" + url + "] returns code [" + code + "].");
                         }
@@ -118,11 +123,7 @@ public final class ChromeDriverInstaller {
                             con.disconnect();
                         }
                     }
-                    if (filePath.getFileName().toString().endsWith("tar.bz2")) {
-                        Util.unTar(filePath.toFile().getAbsolutePath(), installRootPath);
-                    } else {
-                        Util.unZip(installRootPath, filePath);
-                    }
+                    Util.decompress(archivePath, installRootPath);
                     //noinspection ResultOfMethodCallIgnored
                     bin.toFile().setExecutable(true);
                 }
@@ -148,11 +149,12 @@ public final class ChromeDriverInstaller {
                 case MAC:
                     chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
                     break;
-                case LINUX64:
                 case LINUX32:
+                case LINUX64:
                     chromePath = "/usr/bin/google-chrome";
                     break;
-                case WINDOWS:
+                case WINDOWS32:
+                case WINDOWS64:
                     return getInstalledChromeVersionForWindows();
                 case UNKNOWN:
                     throw new UnsupportedOperationException("Not yet supported");
