@@ -174,14 +174,11 @@ public final class ChromeDriverInstaller {
     }
 
     private static Optional<String> getInstalledChromeVersionForWindows() throws IOException, InterruptedException {
-        final File currentDir = new File(".");
-        final String chromePath = Util.execute(currentDir, new String[]{"powershell", "-command", "(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe\\\").'(default)'"});
-
         // See: How to get chrome version using command prompt in windows
         // https://stackoverflow.com/a/57618035/1932017
-        final String versionString = Util.execute(currentDir, new String[]{"powershell", "-command", "(Get-Item -ErrorAction Stop \\\"" + chromePath.trim() + "\\\").VersionInfo.ProductVersion"});
-
-        return Optional.of(versionString.trim());
+        return Optional.of(Util.execute(new File("."),
+                new String[]{"powershell", "-command", "(Get-Item -ErrorAction Stop \\\"" + Util.getAppPath("chrome.exe")
+                        + "\\\").VersionInfo.ProductVersion"}).trim());
     }
 
     static List<String> listAvailableChromeDriverVersions() {
