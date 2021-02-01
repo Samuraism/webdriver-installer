@@ -24,6 +24,8 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -84,6 +86,32 @@ import java.util.zip.ZipFile;
             //noinspection ResultOfMethodCallIgnored
             tempFile.delete();
         }
+    }
+
+    static void download(String downloadURL, Path arcihvePath, Path installRootPath, Path bin) throws IOException {
+        Files.createDirectories(installRootPath);
+        //noinspection ResultOfMethodCallIgnored
+        arcihvePath.toFile().delete();
+        URL url = new URL(downloadURL);
+        HttpURLConnection con = null;
+        try {
+            con = (HttpURLConnection) url.openConnection();
+            con.setReadTimeout(5000);
+            con.setConnectTimeout(5000);
+            int code = con.getResponseCode();
+            if (code == 200) {
+                Files.copy(con.getInputStream(), arcihvePath);
+            } else {
+                throw new IOException("URL[" + url + "] returns code [" + code + "].");
+            }
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+        }
+        decompress(arcihvePath, installRootPath);
+        //noinspection ResultOfMethodCallIgnored
+        bin.toFile().setExecutable(true);
     }
 
     private static void unZip(Path toUnzip,  Path root) throws IOException {

@@ -17,8 +17,6 @@ package com.samuraism.webdriverinstaller;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -112,7 +110,7 @@ public final class GeckodriverInstaller {
         // ex) geckodriver-v0.29.0-linux64.tar.gz
         final String fileName = toFileName(geckoDriverVersion, Util.DETECTED_OS);
         // ex) /root/firefoxDriver/0.29.0/geckodriver-v0.29.0-linux64.tar.gz
-        Path arcihvePath = installRootPath.resolve(fileName);
+        Path archivePath = installRootPath.resolve(fileName);
         String binName = "geckodriver" + ((Util.DETECTED_OS == Util.OS.WINDOWS32 || Util.DETECTED_OS == Util.OS.WINDOWS64) ? ".exe" : "");
         // ex) /root/firefoxDriver/0.29.0/geckodriver
         final Path bin = installRootPath.resolve(binName).toAbsolutePath();
@@ -125,29 +123,7 @@ public final class GeckodriverInstaller {
                     logger.info("geckodriver is installed at: " + bin.toAbsolutePath().toString());
                     initialized = true;
                 } else {
-                    Files.createDirectories(installRootPath);
-                    //noinspection ResultOfMethodCallIgnored
-                    arcihvePath.toFile().delete();
-                    URL url = new URL(downloadURL);
-                    HttpURLConnection con = null;
-                    try {
-                        con = (HttpURLConnection) url.openConnection();
-                        con.setReadTimeout(5000);
-                        con.setConnectTimeout(5000);
-                        int code = con.getResponseCode();
-                        if (code == 200) {
-                            Files.copy(con.getInputStream(), arcihvePath);
-                        } else {
-                            throw new IOException("URL[" + url + "] returns code [" + code + "].");
-                        }
-                    } finally {
-                        if (con != null) {
-                            con.disconnect();
-                        }
-                    }
-                    Util.decompress(arcihvePath, installRootPath);
-                    //noinspection ResultOfMethodCallIgnored
-                    bin.toFile().setExecutable(true);
+                    Util.download(downloadURL, archivePath, installRootPath, bin);
                 }
                 System.setProperty("webdriver.gecko.driver", geckodriver);
                 initialized = true;

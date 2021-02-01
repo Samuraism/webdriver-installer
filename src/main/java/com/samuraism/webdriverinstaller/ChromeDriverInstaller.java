@@ -91,7 +91,7 @@ public final class ChromeDriverInstaller {
         // /root/88.0.4324.96/chromedriver
         String chromedriver = bin.toAbsolutePath().toFile().getAbsolutePath();
         // download ChromeDriver
-        String downloadURL = "";
+        String downloadURL = "https://chromedriver.storage.googleapis.com/" + chromeVersion + "/" + fileName;
         if (!initialized) {
             try {
                 if (Files.exists(bin)) {
@@ -102,30 +102,7 @@ public final class ChromeDriverInstaller {
                         logger.warning("chrome driver for version:"+ chromeVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
                         return Optional.empty();
                     }
-                    Files.createDirectories(installRootPath);
-                    downloadURL = "https://chromedriver.storage.googleapis.com/" + chromeVersion + "/" + fileName;
-                    //noinspection ResultOfMethodCallIgnored
-                    archivePath.toFile().delete();
-                    URL url = new URL(downloadURL);
-                    HttpURLConnection con = null;
-                    try {
-                        con = (HttpURLConnection) url.openConnection();
-                        con.setReadTimeout(5000);
-                        con.setConnectTimeout(5000);
-                        int code = con.getResponseCode();
-                        if (code == 200) {
-                            Files.copy(con.getInputStream(), archivePath);
-                        } else {
-                            throw new IOException("URL[" + url + "] returns code [" + code + "].");
-                        }
-                    } finally {
-                        if (con != null) {
-                            con.disconnect();
-                        }
-                    }
-                    Util.decompress(archivePath, installRootPath);
-                    //noinspection ResultOfMethodCallIgnored
-                    bin.toFile().setExecutable(true);
+                    Util.download(downloadURL, archivePath, installRootPath, bin);
                 }
                 System.setProperty("webdriver.chrome.driver", chromedriver);
                 initialized = true;
