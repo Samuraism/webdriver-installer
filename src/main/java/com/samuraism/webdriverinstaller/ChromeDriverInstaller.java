@@ -45,12 +45,18 @@ public final class ChromeDriverInstaller {
         }
     }
 
-    static String fileName;
-    static String dirName = "chromedriver_";
-    static String binName = "chromedriver";
+    private static boolean initialized = false;
+    /**
+     * ensure ChromeDriver is installed on the specified directory
+     *
+     * @param installRoot directory to be installed
+     * @return path to the ChromeDriver binary
+     */
+    public synchronized static Optional<String> ensureInstalled(String installRoot) {
+        String fileName;
+        String dirName = "chromedriver_";
+        String binName = "chromedriver";
 
-
-    static {
         switch (Util.DETECTED_OS) {
             case LINUX32:
                 dirName += "linux32";
@@ -68,16 +74,7 @@ public final class ChromeDriverInstaller {
                 break;
         }
         fileName = dirName + ".zip";
-    }
 
-    private static boolean initialized = false;
-    /**
-     * ensure ChromeDriver is installed on the specified directory
-     *
-     * @param installRoot directory to be installed
-     * @return path to the ChromeDriver binary
-     */
-    public synchronized static Optional<String> ensureInstalled(String installRoot) {
         final Optional<String> installedVersion = getInstalledChromeVersion();
         if (!installedVersion.isPresent()) {
             return Optional.empty();
