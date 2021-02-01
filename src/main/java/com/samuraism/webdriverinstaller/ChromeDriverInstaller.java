@@ -37,7 +37,8 @@ public final class ChromeDriverInstaller {
         // install Chrome Driver in /tmp/chromedriver
         // This ensures chrome driver to be installed at /tmp/chromedriver
         // "webdriver.chrome.driver" system property will be also set.
-        Optional<String> path = ChromeDriverInstaller.ensureInstalled("/tmp/chromedriver");
+        Optional<String> path = ChromeDriverInstaller.ensureInstalled(System.getProperty("user.home")
+                + File.separator + "chromedriver");
         if (path.isPresent()) {
             logger.info("ChromeDriver installed at: " + path.get());
         } else {
