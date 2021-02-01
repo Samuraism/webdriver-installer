@@ -167,9 +167,15 @@ import java.util.zip.ZipFile;
         }
         tarFile.delete();
     }
-    /* package*/ static String getAppPath(String name) throws IOException, InterruptedException {
-        return Util.execute(new File("."), new String[]{"powershell", "-command",
+    /*package*/ static String getAppPath(String name) throws IOException, InterruptedException {
+        return execute(new File("."), new String[]{"powershell", "-command",
                 String.format("(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s\\\").'(default)'",name)});
     }
 
+    static String getAppVersion(String appPath) throws IOException, InterruptedException {
+        return isWin() ?
+                execute(new File("."), new String[]{"powershell", "-command",
+                                "(Get-Item -ErrorAction Stop \\\"" + appPath + "\\\").VersionInfo.ProductVersion"})
+                : execute(new File("/"), new String[]{appPath, "-version"});
+    }
 }

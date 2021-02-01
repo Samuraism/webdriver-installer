@@ -21,7 +21,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -95,7 +94,7 @@ public final class ChromeDriverInstaller {
         if (!initialized) {
             try {
                 if (Files.exists(bin)) {
-                    logger.info("ChromeDriver is installed at: " + bin.toAbsolutePath().toString());
+                    logger.info("ChromeDriver is already installed at: " + bin.toAbsolutePath().toString());
                     initialized = true;
                 } else {
                     if (listAvailableChromeDriverVersions().stream().noneMatch(e -> e.equals(chromeVersion))) {
@@ -132,7 +131,8 @@ public final class ChromeDriverInstaller {
                     break;
                 case WINDOWS32:
                 case WINDOWS64:
-                    return getInstalledChromeVersionForWindows();
+                    chromePath = Util.getAppPath("chrome.exe");
+                    break;
                 case UNKNOWN:
                     throw new UnsupportedOperationException("Not yet supported");
             }
@@ -140,8 +140,8 @@ public final class ChromeDriverInstaller {
                 logger.warning("Chrome not found at " + chromePath);
                 return Optional.empty();
             }
-            final String result = Util.execute(new File("/"), new String[]{chromePath, "-version"});
-            final String versionString = result.substring("Google Chrome ".length()).trim();
+            final String result = Util.getAppVersion(chromePath);
+            final String versionString = result.substring(result.lastIndexOf(" ")+1);
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
             logger.warning("Failed to locate Google Chrome");
@@ -150,13 +150,6 @@ public final class ChromeDriverInstaller {
         }
     }
 
-    private static Optional<String> getInstalledChromeVersionForWindows() throws IOException, InterruptedException {
-        // See: How to get chrome version using command prompt in windows
-        // https://stackoverflow.com/a/57618035/1932017
-        return Optional.of(Util.execute(new File("."),
-                new String[]{"powershell", "-command", "(Get-Item -ErrorAction Stop \\\"" + Util.getAppPath("chrome.exe")
-                        + "\\\").VersionInfo.ProductVersion"}).trim());
-    }
 
     static List<String> listAvailableChromeDriverVersions() {
         final URLConnection con;

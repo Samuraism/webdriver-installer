@@ -32,7 +32,7 @@ public final class GeckodriverInstaller {
         // This ensures gecko driver to be installed at /tmp/geckodriver
         // "webdriver.gecko.driver" system property will be also set.
         Optional<String> path = GeckodriverInstaller.ensureInstalled(System.getProperty("user.home")
-                + File.separator + "chromedriver");
+                + File.separator + "geckodriver");
         if (path.isPresent()) {
             logger.info("geckodriver installed at: " + path.get());
         } else {
@@ -111,7 +111,7 @@ public final class GeckodriverInstaller {
         final String fileName = toFileName(geckoDriverVersion, Util.DETECTED_OS);
         // ex) /root/firefoxDriver/0.29.0/geckodriver-v0.29.0-linux64.tar.gz
         Path archivePath = installRootPath.resolve(fileName);
-        String binName = "geckodriver" + ((Util.DETECTED_OS == Util.OS.WINDOWS32 || Util.DETECTED_OS == Util.OS.WINDOWS64) ? ".exe" : "");
+        String binName = "geckodriver" + (Util.isWin() ? ".exe" : "");
         // ex) /root/firefoxDriver/0.29.0/geckodriver
         final Path bin = installRootPath.resolve(binName).toAbsolutePath();
         String geckodriver = bin.toString();
@@ -120,7 +120,7 @@ public final class GeckodriverInstaller {
         if (!initialized) {
             try {
                 if (Files.exists(bin)) {
-                    logger.info("geckodriver is installed at: " + bin.toAbsolutePath().toString());
+                    logger.info("geckodriver already is installed at: " + bin.toAbsolutePath().toString());
                     initialized = true;
                 } else {
                     Util.download(downloadURL, archivePath, installRootPath, bin);
@@ -162,10 +162,8 @@ public final class GeckodriverInstaller {
                 logger.warning("Firefox not found at " + firefoxPath);
                 return Optional.empty();
             }
-            final String result = Util.isWin() ? Util.execute(new File("/"), new String[]{"cmd", "/C",
-                    String.format("\"%s\" -v|more",firefoxPath)}):
-                    Util.execute(new File("/"), new String[]{firefoxPath, "-version"});
-            final String versionString = result.substring("Mozilla Firefox ".length()).trim();
+            final String result = Util.getAppVersion(firefoxPath);
+            final String versionString = result.substring(result.lastIndexOf(" ")+1);
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
             logger.warning("Failed to locate Firefox");
