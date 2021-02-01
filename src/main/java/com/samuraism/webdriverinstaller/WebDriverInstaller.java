@@ -180,6 +180,7 @@ import java.util.zip.ZipFile;
         return isWin() ?
                 execute(new File("."), new String[]{"powershell", "-command",
                         "(Get-Item -ErrorAction Stop \\\"" + appPath + "\\\").VersionInfo.ProductVersion"})
-                : execute(new File("/"), new String[]{appPath, "-version"});
+                : execute(new File("/"),
+                new String[]{"/bin/bash", "-c", String.format("`which %s` -version", appPath)});
     }
 }

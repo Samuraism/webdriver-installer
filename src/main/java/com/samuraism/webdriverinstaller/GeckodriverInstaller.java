@@ -149,7 +149,7 @@ public final class GeckodriverInstaller extends WebDriverInstaller {
                     break;
                 case LINUX32:
                 case LINUX64:
-                    firefoxPath = "/usr/bin/firefox";
+                    firefoxPath = "firefox";
                     break;
                 case WINDOWS32:
                 case WINDOWS64:

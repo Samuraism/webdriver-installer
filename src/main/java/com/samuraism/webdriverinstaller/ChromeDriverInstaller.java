@@ -133,7 +133,7 @@ public final class ChromeDriverInstaller extends WebDriverInstaller {
                     break;
                 case LINUX32:
                 case LINUX64:
-                    chromePath = "/usr/bin/google-chrome";
+                    chromePath = "google-chrome";
                     break;
                 case WINDOWS32:
                 case WINDOWS64:
