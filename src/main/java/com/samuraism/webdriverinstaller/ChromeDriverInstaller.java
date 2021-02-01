@@ -32,14 +32,16 @@ import java.util.logging.Logger;
 
 @SuppressWarnings("WeakerAccess")
 public final class ChromeDriverInstaller {
-    private final static Logger logger = Logger.getLogger("com.samuraism.chromedriverinstaller.ChromeDriverInstaller");
+    private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.ChromeDriverInstaller");
     public static void main(String[] args) {
         // install Chrome Driver in /tmp/chromedriver
         // This ensures chrome driver to be installed at /tmp/chromedriver
         // "webdriver.chrome.driver" system property will be also set.
         Optional<String> path = ChromeDriverInstaller.ensureInstalled("/tmp/chromedriver");
-        if(!path.isPresent()){
-            logger.warning("Failed to install Chrome Driver");
+        if (path.isPresent()) {
+            logger.info("ChromeDriver installed at: " + path.get());
+        } else {
+            logger.warning("Failed to install ChromeDriver");
         }
     }
 

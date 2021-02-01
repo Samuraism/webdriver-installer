@@ -27,14 +27,16 @@ import java.util.logging.Logger;
 
 @SuppressWarnings("WeakerAccess")
 public final class GeckodriverInstaller {
-    private final static Logger logger = Logger.getLogger("com.samuraism.chromedriverinstaller.FirefoxDriverInstaller");
+    private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.FirefoxDriverInstaller");
 
     public static void main(String[] args) {
         // install geckodriver in /tmp/geckodriver
         // This ensures gecko driver to be installed at /tmp/geckodriver
         // "webdriver.gecko.driver" system property will be also set.
         Optional<String> path = GeckodriverInstaller.ensureInstalled("/tmp/geckodriver");
-        if (!path.isPresent()) {
+        if (path.isPresent()) {
+            logger.info("geckodriver installed at: " + path.get());
+        } else {
             logger.warning("Failed to install geckodriver");
         }
     }
@@ -194,7 +196,8 @@ public final class GeckodriverInstaller {
                     break;
                 case WINDOWS32:
                 case WINDOWS64:
-                    return getInstalledFirefoxVersionForWindows();
+                    firefoxPath = Util.getAppPath("firefox.exe");
+                    break;
                 case UNKNOWN:
                     throw new UnsupportedOperationException("Not yet supported");
             }
@@ -202,7 +205,9 @@ public final class GeckodriverInstaller {
                 logger.warning("Firefox not found at " + firefoxPath);
                 return Optional.empty();
             }
-            final String result = Util.execute(new File("/"), new String[]{firefoxPath, "-version"});
+            final String result = Util.isWin() ? Util.execute(new File("/"), new String[]{"cmd", "/C",
+                    String.format("\"%s\" -v|more",firefoxPath)}):
+                    Util.execute(new File("/"), new String[]{firefoxPath, "-version"});
             final String versionString = result.substring("Mozilla Firefox ".length()).trim();
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
@@ -210,17 +215,5 @@ public final class GeckodriverInstaller {
             e.printStackTrace();
             return Optional.empty();
         }
-    }
-
-    //"\Program Files\Mozilla Firefox\firefox.exe" -v|more
-    private static Optional<String> getInstalledFirefoxVersionForWindows() throws IOException, InterruptedException {
-        final File currentDir = new File(".");
-        final String firefoxPath = Util.execute(currentDir, new String[]{"powershell", "-command", "(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\firefox.exe\\\").'(default)'"});
-
-        // See: How to get firefox version using command prompt in windows
-        // https://stackoverflow.com/a/57618035/1932017
-        final String versionString = Util.execute(currentDir, new String[]{"powershell", "-command", "(Get-Item -ErrorAction Stop \\\"" + firefoxPath.trim() + "\\\").VersionInfo.ProductVersion"});
-
-        return Optional.of(versionString.trim());
     }
 }

@@ -43,6 +43,9 @@ import java.util.zip.ZipFile;
         WINDOWS64,
         UNKNOWN
     }
+    static boolean isWin(){
+        return DETECTED_OS == OS.WINDOWS32 || DETECTED_OS == OS.WINDOWS64;
+    }
 
     static {
         final String arch = "" + System.getProperty("sun.arch.data.model") + System.getProperty("os.arch");
@@ -76,7 +79,7 @@ import java.util.zip.ZipFile;
                 throw new IOException("Execution failed. commands: " + Arrays.toString(commands) + ", output:" + output);
             }
 
-            return output;
+            return output.trim();
         } finally {
             //noinspection ResultOfMethodCallIgnored
             tempFile.delete();
@@ -136,4 +139,9 @@ import java.util.zip.ZipFile;
         }
         tarFile.delete();
     }
+    /* package*/ static String getAppPath(String name) throws IOException, InterruptedException {
+        return Util.execute(new File("."), new String[]{"powershell", "-command",
+                String.format("(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s\\\").'(default)'",name)});
+    }
+
 }
