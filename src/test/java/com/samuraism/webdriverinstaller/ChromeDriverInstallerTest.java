@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ChromeDriverInstallerTest {
     @Test
     void versions(){
-        final List<String> versions = ChromeDriverInstaller.listAvailableChromeDriverVersions();
+        final List<String> versions = new ChromeDriverInstaller().listAvailableChromeDriverVersions();
         for (String version : versions) {
             System.out.println(version);
         }

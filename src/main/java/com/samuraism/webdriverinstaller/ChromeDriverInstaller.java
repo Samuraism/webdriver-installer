@@ -30,13 +30,14 @@ import java.util.*;
 import java.util.logging.Logger;
 
 @SuppressWarnings("WeakerAccess")
-public final class ChromeDriverInstaller {
+public final class ChromeDriverInstaller extends WebDriverInstaller {
     private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.ChromeDriverInstaller");
+
     public static void main(String[] args) {
         // install Chrome Driver in /tmp/chromedriver
         // This ensures chrome driver to be installed at /tmp/chromedriver
         // "webdriver.chrome.driver" system property will be also set.
-        Optional<String> path = ChromeDriverInstaller.ensureInstalled(System.getProperty("user.home")
+        Optional<String> path = new ChromeDriverInstaller().ensureInstalled(System.getProperty("user.home")
                 + File.separator + "chromedriver");
         if (path.isPresent()) {
             logger.info("ChromeDriver installed at: " + path.get());
@@ -45,19 +46,20 @@ public final class ChromeDriverInstaller {
         }
     }
 
-    private static boolean initialized = false;
+    private boolean initialized = false;
+
     /**
      * ensure ChromeDriver is installed on the specified directory
      *
      * @param installRoot directory to be installed
      * @return path to the ChromeDriver binary
      */
-    public synchronized static Optional<String> ensureInstalled(String installRoot) {
+    public synchronized Optional<String> ensureInstalled(String installRoot) {
         String fileName;
         String dirName = "chromedriver_";
         String binName = "chromedriver";
 
-        switch (Util.DETECTED_OS) {
+        switch (DETECTED_OS) {
             case LINUX32:
                 dirName += "linux32";
                 break;
@@ -98,10 +100,10 @@ public final class ChromeDriverInstaller {
                     initialized = true;
                 } else {
                     if (listAvailableChromeDriverVersions().stream().noneMatch(e -> e.equals(chromeVersion))) {
-                        logger.warning("chrome driver for version:"+ chromeVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
+                        logger.warning("chrome driver for version:" + chromeVersion + " is not available at this moment. https://chromedriver.storage.googleapis.com/index.html");
                         return Optional.empty();
                     }
-                    Util.download(downloadURL, archivePath, installRootPath, bin);
+                    download(downloadURL, archivePath, installRootPath, bin);
                 }
                 System.setProperty("webdriver.chrome.driver", chromedriver);
                 initialized = true;
@@ -118,10 +120,10 @@ public final class ChromeDriverInstaller {
      *
      * @return version string of installed chrome
      */
-    public static Optional<String> getInstalledChromeVersion() {
+    public Optional<String> getInstalledChromeVersion() {
         try {
             String chromePath = "";
-            switch (Util.DETECTED_OS) {
+            switch (DETECTED_OS) {
                 case MAC:
                     chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
                     break;
@@ -131,7 +133,7 @@ public final class ChromeDriverInstaller {
                     break;
                 case WINDOWS32:
                 case WINDOWS64:
-                    chromePath = Util.getAppPath("chrome.exe");
+                    chromePath = getAppPath("chrome.exe");
                     break;
                 case UNKNOWN:
                     throw new UnsupportedOperationException("Not yet supported");
@@ -140,8 +142,8 @@ public final class ChromeDriverInstaller {
                 logger.warning("Chrome not found at " + chromePath);
                 return Optional.empty();
             }
-            final String result = Util.getAppVersion(chromePath);
-            final String versionString = result.substring(result.lastIndexOf(" ")+1);
+            final String result = getAppVersion(chromePath);
+            final String versionString = result.substring(result.lastIndexOf(" ") + 1);
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
             logger.warning("Failed to locate Google Chrome");
@@ -151,7 +153,7 @@ public final class ChromeDriverInstaller {
     }
 
 
-    static List<String> listAvailableChromeDriverVersions() {
+    List<String> listAvailableChromeDriverVersions() {
         final URLConnection con;
         try {
             con = new URL("https://chromedriver.storage.googleapis.com/?delimiter=/&prefix=").openConnection();

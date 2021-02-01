@@ -24,14 +24,14 @@ import java.util.*;
 import java.util.logging.Logger;
 
 @SuppressWarnings("WeakerAccess")
-public final class GeckodriverInstaller {
+public final class GeckodriverInstaller extends WebDriverInstaller {
     private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.FirefoxDriverInstaller");
 
     public static void main(String[] args) {
         // install geckodriver in /tmp/geckodriver
         // This ensures gecko driver to be installed at /tmp/geckodriver
         // "webdriver.gecko.driver" system property will be also set.
-        Optional<String> path = GeckodriverInstaller.ensureInstalled(System.getProperty("user.home")
+        Optional<String> path = new GeckodriverInstaller().ensureInstalled(System.getProperty("user.home")
                 + File.separator + "geckodriver");
         if (path.isPresent()) {
             logger.info("geckodriver installed at: " + path.get());
@@ -40,7 +40,7 @@ public final class GeckodriverInstaller {
         }
     }
 
-    static String getGeckoDriverVersionFromFirefoxVersion(String firefoxVersion) {
+    String getGeckoDriverVersionFromFirefoxVersion(String firefoxVersion) {
         final String version = firefoxVersion.trim().replaceAll("\\..*", "");
         final int intVersion = Integer.parseInt(version);
         if (intVersion < 57) {
@@ -52,12 +52,12 @@ public final class GeckodriverInstaller {
         return "v0.29.0";
     }
 
-    static String toURL(String version, Util.OS os) {
+    String toURL(String version, OS os) {
         return String.format("https://github.com/mozilla/geckodriver/releases/download/%s/%s",
                 version, toFileName(version, os));
     }
 
-    static String toFileName(String version, Util.OS os) {
+    String toFileName(String version, OS os) {
         String osString;
         String suffix;
         switch (os) {
@@ -87,7 +87,7 @@ public final class GeckodriverInstaller {
         return String.format("geckodriver-%s-%s%s", version, osString, suffix);
     }
 
-    private static boolean initialized = false;
+    private boolean initialized = false;
 
     /**
      * ensure geckodriver is installed on the specified directory
@@ -95,7 +95,7 @@ public final class GeckodriverInstaller {
      * @param installRoot directory to be installed
      * @return path to the geckodriver binary
      */
-    public synchronized static Optional<String> ensureInstalled(String installRoot) {
+    public synchronized Optional<String> ensureInstalled(String installRoot) {
         final Optional<String> installedVersion = getInstalledFirefoxVersion();
         if (!installedVersion.isPresent()) {
             return Optional.empty();
@@ -108,22 +108,22 @@ public final class GeckodriverInstaller {
         Path installRootPath = Paths.get(installRoot, geckoDriverVersion);
 
         // ex) geckodriver-v0.29.0-linux64.tar.gz
-        final String fileName = toFileName(geckoDriverVersion, Util.DETECTED_OS);
+        final String fileName = toFileName(geckoDriverVersion, DETECTED_OS);
         // ex) /root/firefoxDriver/0.29.0/geckodriver-v0.29.0-linux64.tar.gz
         Path archivePath = installRootPath.resolve(fileName);
-        String binName = "geckodriver" + (Util.isWin() ? ".exe" : "");
+        String binName = "geckodriver" + (isWin() ? ".exe" : "");
         // ex) /root/firefoxDriver/0.29.0/geckodriver
         final Path bin = installRootPath.resolve(binName).toAbsolutePath();
         String geckodriver = bin.toString();
         // download geckodriver
-        String downloadURL = toURL(geckoDriverVersion, Util.DETECTED_OS);
+        String downloadURL = toURL(geckoDriverVersion, DETECTED_OS);
         if (!initialized) {
             try {
                 if (Files.exists(bin)) {
                     logger.info("geckodriver already is installed at: " + bin.toAbsolutePath().toString());
                     initialized = true;
                 } else {
-                    Util.download(downloadURL, archivePath, installRootPath, bin);
+                    download(downloadURL, archivePath, installRootPath, bin);
                 }
                 System.setProperty("webdriver.gecko.driver", geckodriver);
                 initialized = true;
@@ -140,10 +140,10 @@ public final class GeckodriverInstaller {
      *
      * @return version string of installed firefox
      */
-    public static Optional<String> getInstalledFirefoxVersion() {
+    public Optional<String> getInstalledFirefoxVersion() {
         try {
             String firefoxPath = "";
-            switch (Util.DETECTED_OS) {
+            switch (DETECTED_OS) {
                 case MAC:
                     firefoxPath = "/Applications/Firefox.app/Contents/MacOS/firefox-bin";
                     break;
@@ -153,7 +153,7 @@ public final class GeckodriverInstaller {
                     break;
                 case WINDOWS32:
                 case WINDOWS64:
-                    firefoxPath = Util.getAppPath("firefox.exe");
+                    firefoxPath = getAppPath("firefox.exe");
                     break;
                 case UNKNOWN:
                     throw new UnsupportedOperationException("Not yet supported");
@@ -162,7 +162,7 @@ public final class GeckodriverInstaller {
                 logger.warning("Firefox not found at " + firefoxPath);
                 return Optional.empty();
             }
-            final String result = Util.getAppVersion(firefoxPath);
+            final String result = getAppVersion(firefoxPath);
             final String versionString = result.substring(result.lastIndexOf(" ")+1);
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {

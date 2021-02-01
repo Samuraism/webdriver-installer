@@ -34,7 +34,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-/*protected*/ final class Util {
+/*protected*/ class WebDriverInstaller {
     static final OS DETECTED_OS;
 
     enum OS {
