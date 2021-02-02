@@ -70,33 +70,42 @@ import java.util.zip.ZipFile;
         }
     }
 
+    protected final static String CHROME_DRIVER_ENV_NAME = "CHROME_DRIVER_HOME";
+    protected final static String CHROME_DRIVER_PROPERTY_NAME = "chromedriver.home";
+
     /**
      * Checks if suitable version of ChromeDriver applicable to the version of installed Google Chrome at the path specified by CHROME_DRIVER_HOME environment variable or $HOME/chromedriver
      * If ChromeDriver is not found, attempts to download it from https://chromedriver.storage.googleapis.com/
      * System Property "webdriver.chrome.driver" will be also set.
      *
-     *
      * @return absolute path to installed chromedriver
      */
     public static Optional<String> ensureChromeDriverInstalled() {
-        final String chromeDriverHome = System.getenv("CHROME_DRIVER_HOME");
-        return new ChromeDriverInstaller()
-                .ensureInstalled(chromeDriverHome != null ? chromeDriverHome :
+        final String chromeDriverHome = System.getenv(CHROME_DRIVER_ENV_NAME);
+        String path = chromeDriverHome != null ? chromeDriverHome :
+                System.getProperty(CHROME_DRIVER_PROPERTY_NAME,
                         System.getProperty("user.home") + File.separator + "chromedriver");
+
+        return new ChromeDriverInstaller().ensureInstalled(path);
     }
 
+    protected final static String GECKO_DRIVER_ENV_NAME = "GECKO_DRIVER_HOME";
+    protected final static String GECKO_DRIVER_PROPERTY_NAME = "geckodriver.home";
+
     /**
-     * Checks if suitable version of geckodriver applicable to the version of installed Firefox at the path specified by GECKO_DRIVER_HOME environment variable or $HOME/geckodriver
+     * Checks if suitable version of geckodriver applicable to the version of installed Firefox at the path specified by GECKO_DRIVER_HOME environment variable,
+     * or geckodriver.home system property, or $HOME/geckodriver
      * If geckodriver is not found, attempts to download it from https://github.com/mozilla/geckodriver/releases/
      * System Property "webdriver.gecko.driver" will be also set.
      *
      * @return absolute path to installed geckodriver
      */
     public static Optional<String> ensureGeckoDriverInstalled() {
-        final String geckoDriverHome = System.getenv("GECKO_DRIVER_HOME");
-        return new GeckodriverInstaller()
-                .ensureInstalled(geckoDriverHome != null ? geckoDriverHome :
+        final String geckoDriverHome = System.getenv(GECKO_DRIVER_ENV_NAME);
+        String path = geckoDriverHome != null ? geckoDriverHome :
+                System.getProperty(GECKO_DRIVER_PROPERTY_NAME,
                         System.getProperty("user.home") + File.separator + "geckodriver");
+        return new GeckodriverInstaller().ensureInstalled(path);
     }
 
 

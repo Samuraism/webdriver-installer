@@ -20,7 +20,6 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -33,10 +32,12 @@ import java.util.logging.Logger;
 final class ChromeDriverInstaller extends com.samuraism.webdriverinstaller.WebDriverInstaller {
     private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.ChromeDriverInstaller");
 
-    public static void main(String[] args) {
-        // install Chrome Driver in /tmp/chromedriver
-        // This ensures chrome driver to be installed at /tmp/chromedriver
+    public static void main(String... args) {
+        // installs ChromeDriver in the path specified by argument, or the path specified by GECKO_DRIVER_HOME environment variable, or $HOME/geckodriver
         // "webdriver.chrome.driver" system property will be also set.
+        if (0 < args.length) {
+            System.setProperty(CHROME_DRIVER_PROPERTY_NAME, args[0]);
+        }
         Optional<String> path = WebDriverInstaller.ensureChromeDriverInstalled();
         if (path.isPresent()) {
             logger.info("ChromeDriver installed at: " + path.get());

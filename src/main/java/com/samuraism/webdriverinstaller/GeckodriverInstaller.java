@@ -15,7 +15,6 @@
  */
 package com.samuraism.webdriverinstaller;
 
-import java.io.File;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -23,10 +22,12 @@ import java.util.logging.Logger;
 final class GeckodriverInstaller extends com.samuraism.webdriverinstaller.WebDriverInstaller {
     private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.FirefoxDriverInstaller");
 
-    public static void main(String[] args) {
-        // install geckodriver in /tmp/geckodriver
-        // This ensures gecko driver to be installed at /tmp/geckodriver
+    public static void main(String... args) {
+        // installs geckodriver in the path specified by argument, or the path specified by GECKO_DRIVER_HOME environment variable, or $HOME/geckodriver
         // "webdriver.gecko.driver" system property will be also set.
+        if (0 < args.length) {
+            System.setProperty(GECKO_DRIVER_PROPERTY_NAME, args[0]);
+        }
         Optional<String> path = WebDriverInstaller.ensureGeckoDriverInstalled();
         if (path.isPresent()) {
             logger.info("geckodriver installed at: " + path.get());
