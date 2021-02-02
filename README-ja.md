@@ -1,56 +1,75 @@
-# [&#35;chromeDriverInstaller](https://twitter.com/search?q=%23chromeDriverInstaller&src=typed_query&f=live)
-chrome-driver-installerはインストールされているGoogle Chromeのバージョンを検出して、chrome driverを指定した場所にインストールしてくれる小さなユーティリティクラスです。
+# [&#35;webdriverInstaller](https://twitter.com/search?q=%23webdriverInstaller&src=typed_query&f=live)
+
+webdriver-installerはインストールされているGoogle ChromeまたはFirefoxのバージョンを検出して、最適なバージョンのwebdriverを指定した場所にインストールしてくれる小さなユーティリティです。
+
 ## ハッシュタグ
-[&#35;chromeDriverInstaller](https://twitter.com/intent/tweet?text=https://github.com/samuraism/chrome-driver-installer/+%23chromeDriverInstaller)
+
+[&#35;webdriverInstaller](https://twitter.com/intent/tweet?text=https://github.com/samuraism/chrome-driver-installer/+%23webdriverInstaller)
+
 ## システム要件
+
 Java: Java 8+
 
 OS: Windows, Linux, macOS
 
 ## chrome-driver-installer をプロジェクトに追加する
+
 このライブラリはMaven Central Repositoryにあります。
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.samuraism/chrome-driver-installer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.samuraism/chrome-driver-installer)
 ### Maven
+
 ```xml
+
 <dependencies>
     <dependency>
         <groupId>com.samuraism</groupId>
-        <artifactId>chrome-driver-installer</artifactId>
-        <version>1.3</version>
+        <artifactId>webdriver-installer</artifactId>
+        <version>1.4</version>
     </dependency>
 </dependencies>
 ```
 ### Gradle
 ```text
 dependencies {
-    compile 'com.samuraism:chrome-driver-installer:1.3'
+    compile 'com.samuraism:webdriver-installer:1.4'
 }
 ```
 ## 使い方
-ensureInstalled メソッドを呼び出せばドライバがインストールされている状態になります。
+
+ensureChrome/GeckoDriverInstalled メソッドを呼び出せばドライバが $HOME/chromedriver / $HOME/geckodriver インストールされている状態になります。 環境変数
+CHROME_DRIVER_HOME / GECKO_DRIVER_HOME、またはシステムプロパティ or chromedriver.home / geckodriver.home でインストールする場所を指定することもできます。
 
 ```java
 package yourpackage;
 
-import com.samuraism.webdriverinstaller.ChromeDriverInstaller;
+import com.samuraism.webdriverinstaller.WebDriverInstaller;
 
 public class Example {
     public static void main(String[] args) {
-        // install Chrome Driver in /tmp/chromedriver
-        // This ensures chrome driver to be installed at /tmp/chromedriver
+        // install Chrome Driver in $HOME/chromedriver
         // "webdriver.chrome.driver" system property will be also set.
-        Optional<String> path = ChromeDriverInstaller.ensureInstalled("/tmp/chromedriver");
-        if (path.isPresent()) {
-            System.out.println("Chrome Driver is installed at:" + path.get());
+        Optional<String> chromeDriverPath = WebDriverInstaller.ensureChromeDriverInstalled();
+        if (chromeDriverPath.isPresent()) {
+            System.out.println("Chrome Driver is installed at:" + chromeDriverPath.get());
         } else {
-            System.out.println("Failed to install Chrome Driver");
+            throw new ExceptionInInitializerError("Failed to install Chrome Driver");
+        }
+
+        // install geckodriver in $HOME/geckodriver
+        // "webdriver.gecko.driver" system property will be also set.
+        Optional<String> geckodriverPath = WebDriverInstaller.ensureGeckoDriverInstalled();
+        if (geckodriverPath.isPresent()) {
+            System.out.println("geckodriver is installed at:" + geckodriverPath.get());
+        } else {
+            throw new ExceptionInInitializerError("Failed to install geckodriver");
         }
     }
 }
 ```
 
 # License
+
 Apache License Version 2.0
 
-![Java CI with Gradle](https://github.com/Samuraism/chrome-driver-installer/workflows/Java%20CI%20with%20Gradle/badge.svg)
+![Java CI with Gradle](https://github.com/Samuraism/webdriver-installer/workflows/Java%20CI%20with%20Gradle/badge.svg)
