@@ -28,29 +28,33 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-/*protected*/ class WebDriverInstaller {
-    static final OS DETECTED_OS;
+/*protected*/ public abstract class WebDriverInstaller {
+    private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.WebDriverInstaller");
+    private final OS DETECTED_OS;
+    private final String systemPropertyName;
+    private final String appName;
+    private final String driverName;
+    private final String linuxApp;
+    private final String macApp;
+    private final String winApp;
 
-    enum OS {
-        MAC,
-        LINUX32,
-        LINUX64,
-        WINDOWS32,
-        WINDOWS64,
-        UNKNOWN
-    }
+    WebDriverInstaller(String systemPropertyName, String appName, String driverName, String linuxApp, String macApp, String winApp) {
+        this.systemPropertyName = systemPropertyName;
+        this.appName = appName;
+        this.driverName = driverName;
+        this.linuxApp = linuxApp;
+        this.macApp = macApp;
+        this.winApp = winApp;
 
-    static boolean isWin() {
-        return DETECTED_OS == OS.WINDOWS32 || DETECTED_OS == OS.WINDOWS64;
-    }
-
-    static {
         final String arch = "" + System.getProperty("sun.arch.data.model") + System.getProperty("os.arch");
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("nux")) {
@@ -65,6 +69,165 @@ import java.util.zip.ZipFile;
             }
         }
     }
+
+    /**
+     * Checks if suitable version of ChromeDriver applicable to the version of installed Google Chrome at the path specified by CHROME_DRIVER_HOME environment variable or $HOME/chromedriver
+     * If ChromeDriver is not found, attempts to download it from https://chromedriver.storage.googleapis.com/
+     * System Property "webdriver.chrome.driver" will be also set.
+     *
+     *
+     * @return absolute path to installed chromedriver
+     */
+    public static Optional<String> ensureChromeDriverInstalled() {
+        final String chromeDriverHome = System.getenv("CHROME_DRIVER_HOME");
+        return new ChromeDriverInstaller()
+                .ensureInstalled(chromeDriverHome != null ? chromeDriverHome :
+                        System.getProperty("user.home") + File.separator + "chromedriver");
+    }
+
+    /**
+     * Checks if suitable version of geckodriver applicable to the version of installed Firefox at the path specified by GECKO_DRIVER_HOME environment variable or $HOME/geckodriver
+     * If geckodriver is not found, attempts to download it from https://github.com/mozilla/geckodriver/releases/
+     * System Property "webdriver.gecko.driver" will be also set.
+     *
+     * @return absolute path to installed geckodriver
+     */
+    public static Optional<String> ensureGeckoDriverInstalled() {
+        final String geckoDriverHome = System.getenv("GECKO_DRIVER_HOME");
+        return new GeckodriverInstaller()
+                .ensureInstalled(geckoDriverHome != null ? geckoDriverHome :
+                        System.getProperty("user.home") + File.separator + "geckodriver");
+    }
+
+
+    private boolean initialized = false;
+
+    /**
+     * ensure ChromeDriver is installed on the specified directory
+     *
+     * @param installRoot directory to be installed
+     * @return path to the ChromeDriver binary
+     */
+    synchronized Optional<String> ensureInstalled(String installRoot) {
+        final Optional<String> installedVersion = getInstalledAppVersion();
+        if (!installedVersion.isPresent()) {
+            return Optional.empty();
+        }
+
+        // 88.0.4324.96
+        final String browserVersion = installedVersion.get();
+        final String suitableDriverVersion = getSuitableDriverVersion(browserVersion);
+
+        String binName = driverName + (isWin() ? ".exe" : "");
+        // ex) geckodriver-v0.29.0-linux64.tar.gz
+
+        String fileName = toFileName(suitableDriverVersion);
+
+        // /root/88.0.4324.96
+        // ex) /root/firefoxDriver/0.29.0
+        Path installRootPath = Paths.get(installRoot, suitableDriverVersion);
+        // /root/88.0.4324.96/chromedriver_mac64.zip
+        // ex) /root/firefoxDriver/0.29.0/geckodriver-v0.29.0-linux64.tar.gz
+        Path archivePath = installRootPath.resolve(fileName);
+        // /root/88.0.4324.96/chromedriver
+        // ex) /root/firefoxDriver/0.29.0/geckodriver
+        final Path bin = installRootPath.resolve(binName).toAbsolutePath();
+        // /root/88.0.4324.96/chromedriver
+        String nativeDriver = bin.toString();
+        // download nativeDriver
+        String downloadURL = getDownloadURL(suitableDriverVersion, fileName);
+        if (!initialized) {
+            try {
+                if (Files.exists(bin)) {
+                    logger.info(nativeDriver + " already installed at: " + bin.toAbsolutePath().toString());
+                    initialized = true;
+                } else {
+                    download(downloadURL, archivePath, installRootPath, bin);
+                }
+                System.setProperty(systemPropertyName, nativeDriver);
+                initialized = true;
+            } catch (IOException ioe) {
+                logger.warning("Failed to download: " + downloadURL);
+                ioe.printStackTrace();
+            }
+        }
+        return Optional.of(nativeDriver);
+    }
+
+    abstract String getSuitableDriverVersion(String browserVersion);
+
+    abstract String toFileName(String version);
+
+    abstract String getDownloadURL(String version, String fileName);
+
+    String choose(String linux32, String linux64, String mac, String win32, String win64) {
+        switch (DETECTED_OS) {
+            case LINUX32:
+                return linux32;
+            case LINUX64:
+                return linux64;
+            case MAC:
+                return mac;
+            case WINDOWS32:
+                return win32;
+            case WINDOWS64:
+                return win64;
+        }
+        return null;
+    }
+
+
+    enum OS {
+        MAC,
+        LINUX32,
+        LINUX64,
+        WINDOWS32,
+        WINDOWS64,
+        UNKNOWN
+    }
+
+    /**
+     * Returns version string of installed app.
+     *
+     * @return version string of installed app
+     */
+    public Optional<String> getInstalledAppVersion() {
+        try {
+            String chromePath;
+            switch (DETECTED_OS) {
+                case MAC:
+                    chromePath = macApp;
+                    break;
+                case LINUX32:
+                case LINUX64:
+                    chromePath = getAppPath(linuxApp);
+                    break;
+                case WINDOWS32:
+                case WINDOWS64:
+                    chromePath = getAppPath(winApp);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Not yet supported");
+            }
+            if (!new File(chromePath).exists()) {
+                logger.warning("Chrome not found at " + chromePath);
+                return Optional.empty();
+            }
+            final String result = getAppVersion(chromePath);
+            final String versionString = result.substring(result.lastIndexOf(" ") + 1);
+            return Optional.of(versionString);
+        } catch (IOException | InterruptedException e) {
+            logger.warning("Failed to locate " + appName);
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+
+    protected boolean isWin() {
+        return DETECTED_OS == OS.WINDOWS32 || DETECTED_OS == OS.WINDOWS64;
+    }
+
 
     static String execute(File directory, String[] commands) throws IOException, InterruptedException {
         File tempFile = File.createTempFile("chromeDriverInstaller", "out");
@@ -171,7 +334,7 @@ import java.util.zip.ZipFile;
     }
 
     /*package*/
-    static String getAppPath(String name) throws IOException, InterruptedException {
+    protected String getAppPath(String name) throws IOException, InterruptedException {
         return isWin() ?
                 execute(new File("."), new String[]{"powershell", "-command",
                         String.format("(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s\\\").'(default)'", name)})
@@ -179,7 +342,7 @@ import java.util.zip.ZipFile;
                 new String[]{"/bin/bash", "-c", String.format("which '%s'", name)});
     }
 
-    static String getAppVersion(String appPath) throws IOException, InterruptedException {
+    protected String getAppVersion(String appPath) throws IOException, InterruptedException {
         return isWin() ?
                 execute(new File("."), new String[]{"powershell", "-command",
                         "(Get-Item -ErrorAction Stop \\\"" + appPath + "\\\").VersionInfo.ProductVersion"})
