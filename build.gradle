@@ -39,7 +39,7 @@ publishing {
             pom {
                 name = 'webdriver-installer'
                 description = 'webdriver-installer'
-                url = 'https://github.com/yusuke/chrome-driver-installer'
+                url = 'https://github.com/yusuke/webdriver-installer'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -54,9 +54,9 @@ publishing {
                     }
                 }
                 scm {
-                    url = 'https://github.com/Samuraism/chrome-driver-installer'
-                    connection = 'scm:git:git://github.com/Samuraism/chrome-driver-installer.git'
-                    developerConnection = 'scm:git:git@github.com:Samuraism/chrome-driver-installer.git'
+                    url = 'https://github.com/Samuraism/webdriver-installer'
+                    connection = 'scm:git:git://github.com/Samuraism/webdriver-installer.git'
+                    developerConnection = 'scm:git:git@github.com:Samuraism/webdriver-installer.git'
                 }
             }
         }
