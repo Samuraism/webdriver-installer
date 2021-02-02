@@ -20,11 +20,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @SuppressWarnings("WeakerAccess")
-public final class GeckodriverInstaller extends WebDriverInstaller {
+public final class GeckodriverInstaller extends com.samuraism.webdriverinstaller.WebDriverInstaller {
     private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.FirefoxDriverInstaller");
 
     public static void main(String[] args) {
@@ -149,7 +149,7 @@ public final class GeckodriverInstaller extends WebDriverInstaller {
                     break;
                 case LINUX32:
                 case LINUX64:
-                    firefoxPath = "firefox";
+                    firefoxPath = getAppPath("firefox");
                     break;
                 case WINDOWS32:
                 case WINDOWS64:

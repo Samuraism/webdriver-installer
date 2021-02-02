@@ -20,17 +20,20 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @SuppressWarnings("WeakerAccess")
-public final class ChromeDriverInstaller extends WebDriverInstaller {
+public final class ChromeDriverInstaller extends com.samuraism.webdriverinstaller.WebDriverInstaller {
     private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.ChromeDriverInstaller");
 
     public static void main(String[] args) {
@@ -133,7 +136,7 @@ public final class ChromeDriverInstaller extends WebDriverInstaller {
                     break;
                 case LINUX32:
                 case LINUX64:
-                    chromePath = "google-chrome";
+                    chromePath = getAppPath("google-chrome");
                     break;
                 case WINDOWS32:
                 case WINDOWS64:

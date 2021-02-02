@@ -89,10 +89,10 @@ import java.util.zip.ZipFile;
         }
     }
 
-    static void download(String downloadURL, Path arcihvePath, Path installRootPath, Path bin) throws IOException {
+    static void download(String downloadURL, Path archivePath, Path installRootPath, Path bin) throws IOException {
         Files.createDirectories(installRootPath);
         //noinspection ResultOfMethodCallIgnored
-        arcihvePath.toFile().delete();
+        archivePath.toFile().delete();
         URL url = new URL(downloadURL);
         HttpURLConnection con = null;
         try {
@@ -101,7 +101,7 @@ import java.util.zip.ZipFile;
             con.setConnectTimeout(5000);
             int code = con.getResponseCode();
             if (code == 200) {
-                Files.copy(con.getInputStream(), arcihvePath);
+                Files.copy(con.getInputStream(), archivePath);
             } else {
                 throw new IOException("URL[" + url + "] returns code [" + code + "].");
             }
@@ -110,7 +110,7 @@ import java.util.zip.ZipFile;
                 con.disconnect();
             }
         }
-        decompress(arcihvePath, installRootPath);
+        decompress(archivePath, installRootPath);
         //noinspection ResultOfMethodCallIgnored
         bin.toFile().setExecutable(true);
     }
@@ -172,15 +172,17 @@ import java.util.zip.ZipFile;
 
     /*package*/
     static String getAppPath(String name) throws IOException, InterruptedException {
-        return execute(new File("."), new String[]{"powershell", "-command",
-                String.format("(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s\\\").'(default)'", name)});
+        return isWin() ?
+                execute(new File("."), new String[]{"powershell", "-command",
+                        String.format("(Get-ItemProperty -ErrorAction Stop -Path \\\"HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s\\\").'(default)'", name)})
+                : execute(new File("/"),
+                new String[]{"/bin/bash", "-c", String.format("which '%s'", name)});
     }
 
     static String getAppVersion(String appPath) throws IOException, InterruptedException {
         return isWin() ?
                 execute(new File("."), new String[]{"powershell", "-command",
                         "(Get-Item -ErrorAction Stop \\\"" + appPath + "\\\").VersionInfo.ProductVersion"})
-                : execute(new File("/"),
-                new String[]{"/bin/bash", "-c", String.format("`which %s` -version", appPath)});
+                : execute(new File("/"), new String[]{appPath, "-version", appPath});
     }
 }
