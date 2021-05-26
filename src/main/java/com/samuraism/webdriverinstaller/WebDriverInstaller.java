@@ -148,7 +148,7 @@ import java.util.zip.ZipFile;
         if (!initialized) {
             try {
                 if (Files.exists(bin)) {
-                    logger.info(nativeDriver + " already installed at: " + bin.toAbsolutePath().toString());
+                    logger.info(nativeDriver + " already installed at: " + bin.toAbsolutePath());
                     initialized = true;
                 } else {
                     download(downloadURL, archivePath, installRootPath, bin);
@@ -202,27 +202,27 @@ import java.util.zip.ZipFile;
      */
     public Optional<String> getInstalledAppVersion() {
         try {
-            String chromePath;
+            String appPath;
             switch (DETECTED_OS) {
                 case MAC:
-                    chromePath = macApp;
+                    appPath = macApp;
                     break;
                 case LINUX32:
                 case LINUX64:
-                    chromePath = getAppPath(linuxApp);
+                    appPath = getAppPath(linuxApp);
                     break;
                 case WINDOWS32:
                 case WINDOWS64:
-                    chromePath = getAppPath(winApp);
+                    appPath = getAppPath(winApp);
                     break;
                 default:
                     throw new UnsupportedOperationException("Not yet supported");
             }
-            if (!new File(chromePath).exists()) {
-                logger.warning("Chrome not found at " + chromePath);
+            if (!new File(appPath).exists()) {
+                logger.warning("App not found at " + appPath);
                 return Optional.empty();
             }
-            final String result = getAppVersion(chromePath);
+            final String result = getAppVersion(appPath);
             final String versionString = result.substring(result.lastIndexOf(" ") + 1);
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
