@@ -32,13 +32,12 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /*protected*/ public abstract class WebDriverInstaller {
-    private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.WebDriverInstaller");
+    private final static Logger logger = Logger.getLogger();
     private final OS DETECTED_OS;
     private final String systemPropertyName;
     private final String appName;
@@ -156,7 +155,7 @@ import java.util.zip.ZipFile;
                 System.setProperty(systemPropertyName, nativeDriver);
                 initialized = true;
             } catch (IOException ioe) {
-                logger.warning("Failed to download: " + downloadURL);
+                logger.warn(() -> "Failed to download: " + downloadURL);
                 ioe.printStackTrace();
             }
         }
@@ -219,14 +218,14 @@ import java.util.zip.ZipFile;
                     throw new UnsupportedOperationException("Not yet supported");
             }
             if (!new File(appPath).exists()) {
-                logger.warning("App not found at " + appPath);
+                logger.warn(() -> "App not found at " + appPath);
                 return Optional.empty();
             }
             final String result = getAppVersion(appPath);
             final String versionString = result.substring(result.lastIndexOf(" ") + 1);
             return Optional.of(versionString);
         } catch (IOException | InterruptedException e) {
-            logger.warning("Failed to locate " + appName);
+            logger.warn(() -> "Failed to locate " + appName);
             e.printStackTrace();
             return Optional.empty();
         }

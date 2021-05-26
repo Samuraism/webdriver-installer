@@ -26,11 +26,10 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @SuppressWarnings("WeakerAccess")
 final class ChromeDriverInstaller extends com.samuraism.webdriverinstaller.WebDriverInstaller {
-    private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.ChromeDriverInstaller");
+    private final static Logger logger = Logger.getLogger();
 
     public static void main(String... args) {
         // installs ChromeDriver in the path specified by argument, or the path specified by GECKO_DRIVER_HOME environment variable, or $HOME/geckodriver
@@ -40,9 +39,9 @@ final class ChromeDriverInstaller extends com.samuraism.webdriverinstaller.WebDr
         }
         Optional<String> path = WebDriverInstaller.ensureChromeDriverInstalled();
         if (path.isPresent()) {
-            logger.info("ChromeDriver installed at: " + path.get());
+            logger.info(() -> "ChromeDriver installed at: " + path.get());
         } else {
-            logger.warning("Failed to install ChromeDriver");
+            logger.warn(() -> "Failed to install ChromeDriver");
         }
     }
 

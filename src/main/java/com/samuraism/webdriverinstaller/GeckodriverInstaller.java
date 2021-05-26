@@ -16,11 +16,10 @@
 package com.samuraism.webdriverinstaller;
 
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @SuppressWarnings("WeakerAccess")
 final class GeckodriverInstaller extends com.samuraism.webdriverinstaller.WebDriverInstaller {
-    private final static Logger logger = Logger.getLogger("com.samuraism.webdriverinstaller.FirefoxDriverInstaller");
+    private final static Logger logger = Logger.getLogger();
 
     public static void main(String... args) {
         // installs geckodriver in the path specified by argument, or the path specified by GECKO_DRIVER_HOME environment variable, or $HOME/geckodriver
@@ -30,9 +29,9 @@ final class GeckodriverInstaller extends com.samuraism.webdriverinstaller.WebDri
         }
         Optional<String> path = WebDriverInstaller.ensureGeckoDriverInstalled();
         if (path.isPresent()) {
-            logger.info("geckodriver installed at: " + path.get());
+            logger.info(() -> "geckodriver installed at: " + path.get());
         } else {
-            logger.warning("Failed to install geckodriver");
+            logger.warn(() -> "Failed to install geckodriver");
         }
     }
 
@@ -52,6 +51,7 @@ final class GeckodriverInstaller extends com.samuraism.webdriverinstaller.WebDri
         return String.format("https://github.com/mozilla/geckodriver/releases/download/%s/%s",
                 version, fileName);
     }
+
     @Override
     String getSuitableDriverVersion(String firefoxVersion) {
         final String version = firefoxVersion.trim().replaceAll("\\..*", "");
@@ -64,7 +64,6 @@ final class GeckodriverInstaller extends com.samuraism.webdriverinstaller.WebDri
         }
         return "v0.29.0";
     }
-
 
 
 }
