@@ -26,14 +26,14 @@ This library is available at the Maven Central Repository
     <dependency>
         <groupId>one.cafebabe</groupId>
         <artifactId>webdriver-installer</artifactId>
-        <version>1.5</version>
+        <version>1.6</version>
     </dependency>
 </dependencies>
 ```
 ### Gradle
 ```text
 dependencies {
-    compile 'one.cafebabe:webdriver-installer:1.5'
+    compile 'one.cafebabe:webdriver-installer:1.6'
 }
 ```
 ## How to use
@@ -45,7 +45,7 @@ geckodriver.home system property.
 ```java
 package yourpackage;
 
-import com.samuraism.webdriverinstaller.WebDriverInstaller;
+import one.cafebabe.webdriverinstaller.WebDriverInstaller;
 
 public class Example {
     public static void main(String[] args) {

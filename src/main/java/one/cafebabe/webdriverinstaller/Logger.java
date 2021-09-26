@@ -69,8 +69,7 @@ final class Logger {
             if (slf4j.isDebugEnabled()) {
                 slf4j.debug(supplier.get());
             }
-        }
-        if (jul.isLoggable(Level.FINEST)) {
+        } else if (jul.isLoggable(Level.FINEST)) {
             jul.finest(supplier.get());
         }
     }
@@ -84,8 +83,7 @@ final class Logger {
             if (slf4j.isInfoEnabled()) {
                 slf4j.info(supplier.get());
             }
-        }
-        if (jul.isLoggable(Level.INFO)) {
+        } else if (jul.isLoggable(Level.INFO)) {
             jul.info(supplier.get());
         }
     }
@@ -95,8 +93,7 @@ final class Logger {
             if (slf4j.isWarnEnabled()) {
                 slf4j.warn(supplier.get());
             }
-        }
-        if (jul.isLoggable(Level.WARNING)) {
+        } else if (jul.isLoggable(Level.WARNING)) {
             jul.warning(supplier.get());
         }
     }
@@ -106,8 +103,7 @@ final class Logger {
             if (slf4j.isWarnEnabled()) {
                 slf4j.warn(supplier.get(), th);
             }
-        }
-        if (jul.isLoggable(Level.WARNING)) {
+        } else if (jul.isLoggable(Level.WARNING)) {
             jul.log(Level.WARNING, supplier.get(), th);
         }
     }
@@ -117,8 +113,7 @@ final class Logger {
             if (slf4j.isErrorEnabled()) {
                 slf4j.error(supplier.get());
             }
-        }
-        if (jul.isLoggable(Level.SEVERE)) {
+        } else if (jul.isLoggable(Level.SEVERE)) {
             jul.severe(supplier.get());
         }
     }
@@ -128,8 +123,7 @@ final class Logger {
             if (slf4j.isErrorEnabled()) {
                 slf4j.error(supplier.get(), th);
             }
-        }
-        if (jul.isLoggable(Level.SEVERE)) {
+        } else if (jul.isLoggable(Level.SEVERE)) {
             jul.log(Level.SEVERE, supplier.get(), th);
         }
     }

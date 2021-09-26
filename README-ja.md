@@ -25,14 +25,14 @@ OS: Windows, Linux, macOS
     <dependency>
         <groupId>one.cafebabe</groupId>
         <artifactId>webdriver-installer</artifactId>
-        <version>1.5</version>
+        <version>1.6</version>
     </dependency>
 </dependencies>
 ```
 ### Gradle
 ```text
 dependencies {
-    compile 'one.cafebabe:webdriver-installer:1.5'
+    compile 'one.cafebabe:webdriver-installer:1.6'
 }
 ```
 ## 使い方
