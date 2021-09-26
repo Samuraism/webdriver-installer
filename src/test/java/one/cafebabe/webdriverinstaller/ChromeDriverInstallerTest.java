@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package com.samuraism.webdriverinstaller;
+package one.cafebabe.webdriverinstaller;
 
 import org.junit.jupiter.api.Test;
 
@@ -49,5 +49,10 @@ class ChromeDriverInstallerTest {
 
                 , () -> assertEquals("89.0.4389.23", installer.getSuitableDriverVersion(availableVersions, "95.0.1023.00"))
         );
+        for (String listAvailableChromeDriverVersion : installer.listAvailableChromeDriverVersions()) {
+            System.out.println(listAvailableChromeDriverVersion);
+        }
+        System.out.println(installer.getSuitableDriverVersion(installer.listAvailableChromeDriverVersions(), "91.0.4472.114"));
+
     }
 }

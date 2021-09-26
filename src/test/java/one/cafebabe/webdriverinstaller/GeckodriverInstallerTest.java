@@ -1,4 +1,4 @@
-package com.samuraism.webdriverinstaller;
+package one.cafebabe.webdriverinstaller;
 
 import org.junit.jupiter.api.Test;
 

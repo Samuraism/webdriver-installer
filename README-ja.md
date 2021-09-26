@@ -16,23 +16,23 @@ OS: Windows, Linux, macOS
 
 このライブラリはMaven Central Repositoryにあります。
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.samuraism/chrome-driver-installer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.samuraism/chrome-driver-installer)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/one.cafebabe/chrome-driver-installer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/one.cafebabe/chrome-driver-installer)
 ### Maven
 
 ```xml
 
 <dependencies>
     <dependency>
-        <groupId>com.samuraism</groupId>
+        <groupId>one.cafebabe</groupId>
         <artifactId>webdriver-installer</artifactId>
-        <version>1.4</version>
+        <version>1.5</version>
     </dependency>
 </dependencies>
 ```
 ### Gradle
 ```text
 dependencies {
-    compile 'com.samuraism:webdriver-installer:1.4'
+    compile 'one.cafebabe:webdriver-installer:1.5'
 }
 ```
 ## 使い方
@@ -43,7 +43,7 @@ CHROME_DRIVER_HOME / GECKO_DRIVER_HOME、またはシステムプロパティ or
 ```java
 package yourpackage;
 
-import com.samuraism.webdriverinstaller.WebDriverInstaller;
+import one.cafebabe.webdriverinstaller.WebDriverInstaller;
 
 public class Example {
     public static void main(String[] args) {

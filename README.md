@@ -17,23 +17,23 @@ OS: Windows, Linux, macOS
 
 This library is available at the Maven Central Repository
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.samuraism/webdriver-installer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.samuraism/webdriver-installer)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/one.cafebabe/webdriver-installer/badge.svg)](https://maven-badges.herokuapp.com/maven-central/one.cafebabe/webdriver-installer)
 ### Maven
 
 ```xml
 
 <dependencies>
     <dependency>
-        <groupId>com.samuraism</groupId>
+        <groupId>one.cafebabe</groupId>
         <artifactId>webdriver-installer</artifactId>
-        <version>1.4</version>
+        <version>1.5</version>
     </dependency>
 </dependencies>
 ```
 ### Gradle
 ```text
 dependencies {
-    compile 'com.samuraism:webdriver-installer:1.4'
+    compile 'one.cafebabe:webdriver-installer:1.5'
 }
 ```
 ## How to use

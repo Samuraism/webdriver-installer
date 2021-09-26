@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package com.samuraism.webdriverinstaller;
+package one.cafebabe.webdriverinstaller;
 
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("WeakerAccess")
-final class ChromeDriverInstaller extends com.samuraism.webdriverinstaller.WebDriverInstaller {
+final class ChromeDriverInstaller extends WebDriverInstaller {
     private final static Logger logger = Logger.getLogger();
 
     public static void main(String... args) {
@@ -46,7 +46,7 @@ final class ChromeDriverInstaller extends com.samuraism.webdriverinstaller.WebDr
     }
 
     ChromeDriverInstaller() {
-        super("webdriver.chrome.driver", "Google Chrome", "chromedriver", "google-chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "chrome.exe");
+        super("1", "Google Chrome", "chromedriver", "google-chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "chrome.exe");
     }
 
     @Override

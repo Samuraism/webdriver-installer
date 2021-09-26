@@ -13,12 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package com.samuraism.webdriverinstaller;
+package one.cafebabe.webdriverinstaller;
 
 import java.util.Optional;
 
 @SuppressWarnings("WeakerAccess")
-final class GeckodriverInstaller extends com.samuraism.webdriverinstaller.WebDriverInstaller {
+final class GeckodriverInstaller extends WebDriverInstaller {
     private final static Logger logger = Logger.getLogger();
 
     public static void main(String... args) {
@@ -62,7 +62,10 @@ final class GeckodriverInstaller extends com.samuraism.webdriverinstaller.WebDri
         if (intVersion < 60) {
             return "v0.25.0";
         }
-        return "v0.29.0";
+        if (intVersion < 78) {
+            return "v0.29.1";
+        }
+        return "v0.30.0";
     }
 
 

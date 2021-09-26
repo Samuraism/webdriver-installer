@@ -1,4 +1,4 @@
-package com.samuraism.webdriverinstaller;
+package one.cafebabe.webdriverinstaller;
 
 /*
  * Copyright 2007 Yusuke Yamamoto

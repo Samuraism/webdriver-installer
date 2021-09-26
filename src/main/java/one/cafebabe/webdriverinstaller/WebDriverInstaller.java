@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package com.samuraism.webdriverinstaller;
+package one.cafebabe.webdriverinstaller;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -26,6 +26,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
