@@ -293,10 +293,16 @@ import java.util.zip.ZipFile;
         while (entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
             if (entry.isDirectory()) {
-                Files.createDirectories(root.resolve(entry.getName()));
+                try {
+                    Files.createDirectories(root.resolve(entry.getName()));
+                } catch (FileAlreadyExistsException ignore) {
+                }
             } else {
                 try (InputStream is = new BufferedInputStream(zip.getInputStream(entry))) {
-                    Files.copy(is, root.resolve(entry.getName()));
+                    try {
+                        Files.copy(is, root.resolve(entry.getName()));
+                    } catch (FileAlreadyExistsException ignore) {
+                    }
                 }
             }
 

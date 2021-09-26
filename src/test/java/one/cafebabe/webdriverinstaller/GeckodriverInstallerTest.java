@@ -2,22 +2,25 @@ package one.cafebabe.webdriverinstaller;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GeckodriverInstallerTest {
 
     @Test
-    void getGeckoDriverVersionFromFirefoxVersion(){
-        // Firefox 60+:  0.29.0
+    void getGeckoDriverVersionFromFirefoxVersion() {
+        // https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
         final GeckodriverInstaller geckodriverInstaller = new GeckodriverInstaller();
-        assertEquals("v0.29.0", geckodriverInstaller.getSuitableDriverVersion("60.1"));
-        assertEquals("v0.29.0", geckodriverInstaller.getSuitableDriverVersion("68.0b14"));
-        assertEquals("v0.29.0", geckodriverInstaller.getSuitableDriverVersion("70.2"));
-        assertEquals("v0.29.0", geckodriverInstaller.getSuitableDriverVersion("78.6.1esr"));
-        assertEquals("v0.29.0", geckodriverInstaller.getSuitableDriverVersion("80"));
-        assertEquals("v0.29.0", geckodriverInstaller.getSuitableDriverVersion("85.0"));
-        assertEquals("v0.29.0", geckodriverInstaller.getSuitableDriverVersion("80.5"));
-        assertEquals("v0.29.0", geckodriverInstaller.getSuitableDriverVersion("90.1.1"));
+        // Firefox 78+:  0.30.0
+        assertEquals("v0.30.0", geckodriverInstaller.getSuitableDriverVersion("78.6.1esr"));
+        assertEquals("v0.30.0", geckodriverInstaller.getSuitableDriverVersion("80"));
+        assertEquals("v0.30.0", geckodriverInstaller.getSuitableDriverVersion("85.0"));
+        assertEquals("v0.30.0", geckodriverInstaller.getSuitableDriverVersion("80.5"));
+        assertEquals("v0.30.0", geckodriverInstaller.getSuitableDriverVersion("90.1.1"));
+
+        // Firefox 60+:  0.29.0
+        assertEquals("v0.29.1", geckodriverInstaller.getSuitableDriverVersion("60.1"));
+        assertEquals("v0.29.1", geckodriverInstaller.getSuitableDriverVersion("68.0b14"));
+        assertEquals("v0.29.1", geckodriverInstaller.getSuitableDriverVersion("70.2"));
 
         // Firefox 57+: 0.25.0
         assertEquals("v0.25.0", geckodriverInstaller.getSuitableDriverVersion("57"));
