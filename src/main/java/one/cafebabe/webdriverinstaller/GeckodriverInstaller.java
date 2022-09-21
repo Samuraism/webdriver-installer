@@ -65,7 +65,10 @@ final class GeckodriverInstaller extends WebDriverInstaller {
         if (intVersion < 78) {
             return "v0.29.1";
         }
-        return "v0.30.0";
+        if (intVersion < 96) {
+            return "v0.30.0";
+        }
+        return "v0.31.0";
     }
 
 

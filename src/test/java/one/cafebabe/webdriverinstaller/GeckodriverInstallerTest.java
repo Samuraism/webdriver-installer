@@ -10,6 +10,11 @@ class GeckodriverInstallerTest {
     void getGeckoDriverVersionFromFirefoxVersion() {
         // https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
         final GeckodriverInstaller geckodriverInstaller = new GeckodriverInstaller();
+        // Firefox 96+:  0.31.0
+        assertEquals("v0.31.0", geckodriverInstaller.getSuitableDriverVersion("96.0.1"));
+        assertEquals("v0.31.0", geckodriverInstaller.getSuitableDriverVersion("102.1esr"));
+        assertEquals("v0.31.0", geckodriverInstaller.getSuitableDriverVersion("105.0"));
+
         // Firefox 78+:  0.30.0
         assertEquals("v0.30.0", geckodriverInstaller.getSuitableDriverVersion("78.6.1esr"));
         assertEquals("v0.30.0", geckodriverInstaller.getSuitableDriverVersion("80"));
