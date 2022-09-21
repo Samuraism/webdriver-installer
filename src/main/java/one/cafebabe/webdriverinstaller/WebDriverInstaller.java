@@ -37,6 +37,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ * web driver
+ */
 /*protected*/ public abstract class WebDriverInstaller {
     private final static Logger logger = Logger.getLogger();
     private final OS DETECTED_OS;
@@ -70,12 +73,19 @@ import java.util.zip.ZipFile;
         }
     }
 
+    /**
+     * environment variable to specify where to store Chrome Driver
+     */
     protected final static String CHROME_DRIVER_ENV_NAME = "CHROME_DRIVER_HOME";
+
+    /**
+     * system property to specify where to store Chrome Driver
+     */
     protected final static String CHROME_DRIVER_PROPERTY_NAME = "chromedriver.home";
 
     /**
      * Checks if suitable version of ChromeDriver applicable to the version of installed Google Chrome at the path specified by CHROME_DRIVER_HOME environment variable or $HOME/chromedriver
-     * If ChromeDriver is not found, attempts to download it from https://chromedriver.storage.googleapis.com/
+     * If ChromeDriver is not found, attempts to download it from <a href="https://chromedriver.storage.googleapis.com/">https://chromedriver.storage.googleapis.com/</a>
      * System Property "webdriver.chrome.driver" will be also set.
      *
      * @return absolute path to installed chromedriver
@@ -89,13 +99,19 @@ import java.util.zip.ZipFile;
         return new ChromeDriverInstaller().ensureInstalled(path);
     }
 
+    /**
+     * environment variable where to store gecko driver
+     */
     protected final static String GECKO_DRIVER_ENV_NAME = "GECKO_DRIVER_HOME";
+    /**
+     * system property where to store gecko driver
+     */
     protected final static String GECKO_DRIVER_PROPERTY_NAME = "geckodriver.home";
 
     /**
      * Checks if suitable version of geckodriver applicable to the version of installed Firefox at the path specified by GECKO_DRIVER_HOME environment variable,
      * or geckodriver.home system property, or $HOME/geckodriver
-     * If geckodriver is not found, attempts to download it from https://github.com/mozilla/geckodriver/releases/
+     * If geckodriver is not found, attempts to download it from <a href="https://github.com/mozilla/geckodriver/releases/">mozilla geckodriver Releases</a>
      * System Property "webdriver.gecko.driver" will be also set.
      *
      * @return absolute path to installed geckodriver
@@ -233,6 +249,11 @@ import java.util.zip.ZipFile;
     }
 
 
+    /**
+     * check if the running OS is Windows
+     *
+     * @return true is the running OS is Windows
+     */
     protected boolean isWin() {
         return DETECTED_OS == OS.WINDOWS32 || DETECTED_OS == OS.WINDOWS64;
     }
@@ -288,24 +309,24 @@ import java.util.zip.ZipFile;
     }
 
     private static void unZip(Path toUnzip, Path root) throws IOException {
-        ZipFile zip = new ZipFile(toUnzip.toFile());
-        Enumeration<? extends ZipEntry> entries = zip.entries();
-        while (entries.hasMoreElements()) {
-            ZipEntry entry = entries.nextElement();
-            if (entry.isDirectory()) {
-                try {
-                    Files.createDirectories(root.resolve(entry.getName()));
-                } catch (FileAlreadyExistsException ignore) {
-                }
-            } else {
-                try (InputStream is = new BufferedInputStream(zip.getInputStream(entry))) {
+        try (ZipFile zip = new ZipFile(toUnzip.toFile())) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.isDirectory()) {
                     try {
-                        Files.copy(is, root.resolve(entry.getName()));
+                        Files.createDirectories(root.resolve(entry.getName()));
                     } catch (FileAlreadyExistsException ignore) {
+                    }
+                } else {
+                    try (InputStream is = new BufferedInputStream(zip.getInputStream(entry))) {
+                        try {
+                            Files.copy(is, root.resolve(entry.getName()));
+                        } catch (FileAlreadyExistsException ignore) {
+                        }
                     }
                 }
             }
-
         }
     }
 
@@ -321,8 +342,8 @@ import java.util.zip.ZipFile;
     private static void unTar(Path toDecompress, Path root) throws IOException {
         File tarFile = File.createTempFile("driver", "tar");
         try (InputStream in = toDecompress.toString().endsWith(".gz") ?
-                new GZIPInputStream(new FileInputStream(toDecompress.toFile()))
-                : new BZip2CompressorInputStream(new FileInputStream(toDecompress.toFile()));
+                new GZIPInputStream(Files.newInputStream(toDecompress.toFile().toPath()))
+                : new BZip2CompressorInputStream(Files.newInputStream(toDecompress.toFile().toPath()));
              FileOutputStream out = new FileOutputStream(tarFile)) {
             IOUtils.copy(in, out);
         }
@@ -330,14 +351,14 @@ import java.util.zip.ZipFile;
         File outputDir = root.toFile();
         outputDir.mkdirs();
         try (ArchiveInputStream is = new ArchiveStreamFactory()
-                .createArchiveInputStream("tar", new FileInputStream(tarFile))) {
+                .createArchiveInputStream("tar", Files.newInputStream(tarFile.toPath()))) {
             ArchiveEntry entry;
             while ((entry = is.getNextEntry()) != null) {
                 File out = new File(outputDir, entry.getName());
                 if (entry.isDirectory()) {
                     out.mkdirs();
                 } else {
-                    try (OutputStream fos = new FileOutputStream(out)) {
+                    try (OutputStream fos = Files.newOutputStream(out.toPath())) {
                         IOUtils.copy(is, fos);
                     }
                 }
@@ -348,6 +369,14 @@ import java.util.zip.ZipFile;
         tarFile.delete();
     }
 
+    /**
+     * check app path
+     *
+     * @param name command to search
+     * @return path
+     * @throws IOException          IOException
+     * @throws InterruptedException InterruptedException
+     */
     /*package*/
     protected String getAppPath(String name) throws IOException, InterruptedException {
         return isWin() ?
@@ -357,6 +386,14 @@ import java.util.zip.ZipFile;
                 new String[]{"/bin/bash", "-c", String.format("which '%s'", name)});
     }
 
+    /**
+     * check app version
+     *
+     * @param appPath app path to check
+     * @return version
+     * @throws IOException          IOException
+     * @throws InterruptedException InterruptedException
+     */
     protected String getAppVersion(String appPath) throws IOException, InterruptedException {
         return isWin() ?
                 execute(new File("."), new String[]{"powershell", "-command",
