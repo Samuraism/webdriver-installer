@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'one.cafebabe'
+version '1.7'
+repositories {
+    mavenCentral()
+}
+
+compileJava {
+    sourceCompatibility = '9'
+    targetCompatibility = '9'
+}
+sourceSets {
+    main {
+        java {
+            srcDir '../src/main/java'
+            srcDir 'src/main/java'
+        }
+    }
+}
+
+dependencies {
+    compileOnly 'org.slf4j:slf4j-api:2.0.2'
+    compileOnly 'com.intellij:annotations:12.0'
+    implementation 'org.apache.commons:commons-compress:1.21'
+
+}
