@@ -15,7 +15,11 @@
  */
 package one.cafebabe.webdriverinstaller;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Optional;
+import java.util.Properties;
 
 @SuppressWarnings("WeakerAccess")
 final class GeckodriverInstaller extends WebDriverInstaller {
@@ -52,24 +56,31 @@ final class GeckodriverInstaller extends WebDriverInstaller {
                 version, fileName);
     }
 
+    static final String[] versions;
+
+    static {
+        Properties p = new Properties();
+        try {
+            p.load(GeckodriverInstaller.class.getResourceAsStream("/gecko-versions.properties"));
+            URL url = new URL("https://raw.githubusercontent.com/Samuraism/webdriver-installer/main/resources/gecko-versions.properties");
+            URLConnection urlConnection = url.openConnection();
+            p.load(urlConnection.getInputStream());
+        } catch (IOException ignored) {
+        }
+        versions = p.getProperty("gecko-versions").split(",");
+    }
+
     @Override
     String getSuitableDriverVersion(String firefoxVersion) {
         final String version = firefoxVersion.trim().replaceAll("\\..*", "");
         final int intVersion = Integer.parseInt(version);
-        if (intVersion < 57) {
-            return "v0.20.1";
+        for (String s : versions) {
+            String driverVersion = s.split("<")[0];
+            int geckoVersion = Integer.parseInt(s.split("<")[1]);
+            if (intVersion < geckoVersion) {
+                return driverVersion;
+            }
         }
-        if (intVersion < 60) {
-            return "v0.25.0";
-        }
-        if (intVersion < 78) {
-            return "v0.29.1";
-        }
-        if (intVersion < 96) {
-            return "v0.30.0";
-        }
-        return "v0.31.0";
+        return versions[versions.length - 1].split("<")[1];
     }
-
-
 }

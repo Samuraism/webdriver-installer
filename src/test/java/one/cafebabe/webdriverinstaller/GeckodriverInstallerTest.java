@@ -36,13 +36,16 @@ class GeckodriverInstallerTest {
         assertEquals("v0.25.0", geckodriverInstaller.getSuitableDriverVersion("59.5"));
 
 
-        // Other: 0.20.1
-        assertEquals("v0.20.1", geckodriverInstaller.getSuitableDriverVersion("37.1"));
-        assertEquals("v0.20.1", geckodriverInstaller.getSuitableDriverVersion("38.2"));
-        assertEquals("v0.20.1", geckodriverInstaller.getSuitableDriverVersion("39.5"));
-        assertEquals("v0.20.1", geckodriverInstaller.getSuitableDriverVersion("47"));
+        // Firefox 55+: 0.20.1
         assertEquals("v0.20.1", geckodriverInstaller.getSuitableDriverVersion("55.0"));
         assertEquals("v0.20.1", geckodriverInstaller.getSuitableDriverVersion("56.1.1"));
+
+        // Firefox 53: 0.18.0
+        assertEquals("v0.18.0", geckodriverInstaller.getSuitableDriverVersion("53.0"));
+        assertEquals("v0.18.0", geckodriverInstaller.getSuitableDriverVersion("53"));
+        // Firefox 52: 0.17.0
+        assertEquals("v0.17.0", geckodriverInstaller.getSuitableDriverVersion("52.0"));
+        assertEquals("v0.17.0", geckodriverInstaller.getSuitableDriverVersion("52"));
 
     }
     // https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
