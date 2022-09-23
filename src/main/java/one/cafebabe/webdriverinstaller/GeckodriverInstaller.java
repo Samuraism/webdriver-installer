@@ -15,6 +15,8 @@
  */
 package one.cafebabe.webdriverinstaller;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -43,6 +45,7 @@ final class GeckodriverInstaller extends WebDriverInstaller {
         super("webdriver.gecko.driver", "Firefox", "geckodriver", "firefox", "/Applications/Firefox.app/Contents/MacOS/firefox-bin", "firefox.exe");
     }
 
+    @NotNull
     @Override
     String toFileName(String version) {
         String osString = choose("linux32", "linux64", "macos", "win32", "win64");
@@ -50,6 +53,7 @@ final class GeckodriverInstaller extends WebDriverInstaller {
         return String.format("geckodriver-%s-%s%s", version, osString, suffix);
     }
 
+    @NotNull
     @Override
     String getDownloadURL(String version, String fileName) {
         return String.format("https://github.com/mozilla/geckodriver/releases/download/%s/%s",
@@ -70,6 +74,7 @@ final class GeckodriverInstaller extends WebDriverInstaller {
         versions = p.getProperty("gecko-versions").split(",");
     }
 
+    @NotNull
     @Override
     String getSuitableDriverVersion(String firefoxVersion) {
         final String version = firefoxVersion.trim().replaceAll("\\..*", "");

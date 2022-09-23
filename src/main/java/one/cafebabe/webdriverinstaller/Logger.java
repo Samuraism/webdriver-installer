@@ -16,6 +16,8 @@ package one.cafebabe.webdriverinstaller;
  * limitations under the License.
  */
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -57,6 +59,7 @@ final class Logger {
      *
      * @return logger instance
      */
+    @NotNull
     static Logger getLogger() {
         final String className = new Throwable().getStackTrace()[1].getClassName();
         return SLF4J_EXISTS_IN_CLASSPATH ?
@@ -98,6 +101,7 @@ final class Logger {
         }
     }
 
+    @SuppressWarnings("unused")
     void warn(Supplier<String> supplier, Throwable th) {
         if (SLF4J_EXISTS_IN_CLASSPATH) {
             if (slf4j.isWarnEnabled()) {
@@ -118,6 +122,7 @@ final class Logger {
         }
     }
 
+    @SuppressWarnings("unused")
     void error(Supplier<String> supplier, Throwable th) {
         if (SLF4J_EXISTS_IN_CLASSPATH) {
             if (slf4j.isErrorEnabled()) {

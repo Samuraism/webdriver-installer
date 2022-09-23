@@ -22,6 +22,8 @@ import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -90,6 +92,7 @@ import java.util.zip.ZipFile;
      *
      * @return absolute path to installed chromedriver
      */
+    @NotNull
     public static Optional<String> ensureChromeDriverInstalled() {
         final String chromeDriverHome = System.getenv(CHROME_DRIVER_ENV_NAME);
         String path = chromeDriverHome != null ? chromeDriverHome :
@@ -116,6 +119,7 @@ import java.util.zip.ZipFile;
      *
      * @return absolute path to installed geckodriver
      */
+    @NotNull
     public static Optional<String> ensureGeckoDriverInstalled() {
         final String geckoDriverHome = System.getenv(GECKO_DRIVER_ENV_NAME);
         String path = geckoDriverHome != null ? geckoDriverHome :
@@ -133,6 +137,8 @@ import java.util.zip.ZipFile;
      * @param installRoot directory to be installed
      * @return path to the ChromeDriver binary
      */
+
+    @NotNull
     synchronized Optional<String> ensureInstalled(String installRoot) {
         final Optional<String> installedVersion = getInstalledAppVersion();
         if (!installedVersion.isPresent()) {
@@ -181,10 +187,13 @@ import java.util.zip.ZipFile;
 
     abstract String getSuitableDriverVersion(String browserVersion);
 
+    @NotNull
     abstract String toFileName(String version);
 
+    @NotNull
     abstract String getDownloadURL(String version, String fileName);
 
+    @Nullable
     String choose(String linux32, String linux64, String mac, String win32, String win64) {
         switch (DETECTED_OS) {
             case LINUX32:

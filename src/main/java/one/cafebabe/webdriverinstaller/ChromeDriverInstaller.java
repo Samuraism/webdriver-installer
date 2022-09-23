@@ -15,6 +15,7 @@
  */
 package one.cafebabe.webdriverinstaller;
 
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -50,11 +51,13 @@ final class ChromeDriverInstaller extends WebDriverInstaller {
     }
 
     @Override
+    @NotNull
     String toFileName(String version) {
         return "chromedriver_" + choose("linux32", "linux64", "mac64", "win32", "win32") + ".zip";
     }
 
     @Override
+    @NotNull
     String getDownloadURL(String version, String fileName) {
         return "https://chromedriver.storage.googleapis.com/" + version + "/" + fileName;
     }
