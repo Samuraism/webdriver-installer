@@ -11,6 +11,7 @@ repositories {
 compileJava {
     sourceCompatibility = '9'
     targetCompatibility = '9'
+    options.compilerArgs += ["--module-version", "$version"]
 }
 sourceSets {
     main {
