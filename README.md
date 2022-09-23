@@ -26,16 +26,25 @@ This library is available at the Maven Central Repository
     <dependency>
         <groupId>one.cafebabe</groupId>
         <artifactId>webdriver-installer</artifactId>
-        <version>1.7</version>
+        <version>1.8</version>
     </dependency>
 </dependencies>
 ```
+
 ### Gradle
+
 ```text
 dependencies {
-    compile 'one.cafebabe:webdriver-installer:1.7'
+    compile 'one.cafebabe:webdriver-installer:1.8'
 }
 ```
+
+### Java modularity
+
+```text
+require one.cafebabe.webdriverinstaller
+```
+
 ## How to use
 
 Call Chrome/GeckoDriver method to ensure the driver is installed at $HOME/chromedriver / $HOME/geckodriver You can
