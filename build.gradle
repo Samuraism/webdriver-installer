@@ -23,7 +23,7 @@ compileJava   {
 
 dependencies {
     compileOnly 'org.slf4j:slf4j-api:2.0.2'
-    compileOnly 'com.intellij:annotations:12.0'
+    compileOnly 'org.jetbrains:annotations:23.0.0'
 
     implementation 'org.apache.commons:commons-compress:1.21'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
@@ -36,7 +36,11 @@ test {
 
 jar {
     from('module-info/build/classes/java/main') {
-        include 'module-info.class'
+        include "module-info.class"
+        into "META-INF/versions/9"
+    }
+    manifest {
+        attributes 'Multi-Release': 'true'
     }
 }
 tasks.jar.dependsOn([':module-info:compileJava'])
