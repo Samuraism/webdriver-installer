@@ -26,7 +26,7 @@ This library is available at the Maven Central Repository
     <dependency>
         <groupId>one.cafebabe</groupId>
         <artifactId>webdriver-installer</artifactId>
-        <version>1.9</version>
+        <version>1.10</version>
     </dependency>
 </dependencies>
 ```
@@ -35,7 +35,7 @@ This library is available at the Maven Central Repository
 
 ```text
 dependencies {
-    compile 'one.cafebabe:webdriver-installer:1.9'
+    compile 'one.cafebabe:webdriver-installer:1.10'
 }
 ```
 
