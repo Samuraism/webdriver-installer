@@ -25,7 +25,7 @@ OS: Windows, Linux, macOS
     <dependency>
         <groupId>one.cafebabe</groupId>
         <artifactId>webdriver-installer</artifactId>
-        <version>1.10</version>
+        <version>1.11</version>
     </dependency>
 </dependencies>
 ```
@@ -34,7 +34,7 @@ OS: Windows, Linux, macOS
 
 ```text
 dependencies {
-    compile 'one.cafebabe:webdriver-installer:1.10'
+    compile 'one.cafebabe:webdriver-installer:1.11'
 }
 ```
 
